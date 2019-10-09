@@ -5,3 +5,5 @@
 1. [IOS踩坑笔记](https://github.com/fengyingweb/trample/blob/master/IOS%E8%B8%A9%E5%9D%91.md)
 
 2. [html2canvas踩坑笔记](https://github.com/fengyingweb/trample/blob/master/html2canvas%E8%B8%A9%E5%9D%91.md)
+
+3. [visibilitychange](https://github.com/fengyingweb/trample/blob/master/visibilitychange.md)
