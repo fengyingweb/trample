@@ -213,3 +213,267 @@
   * 不可使用yield命令，因此箭头函数不能用作Generator函数
   * 不可使用Arguments对象，此对象在函数体内不存在(可用rest/spread参数代替)
   * 返回对象时必须在对象外面加上括号
+
+## 正则扩展
+  * 变更RegExp构造函数入参：允许首参数为正则对象，尾参数为正则修饰符(返回的正则表达式会忽略原正则表达式的修饰符)
+  * 正则方法调用变更：字符串对象的match()、replace()、search()、split()内部调用转为调用RegExp实例对应的RegExp.prototype[Symbol.方法]
+  * u修饰符：Unicode模式修饰符，正确处理大于\uFFFF的Unicode字符
+    1. 点字符(.)
+    2. Unicode表示法
+    3. 量词
+    4. 预定义模式
+    5. i修饰符
+    6. 转义
+  * y修饰符：粘连修饰符，确保匹配必须从剩余的第一个位置开始全局匹配(与g修饰符作用类似)
+  * unicode：是否设置u修饰符
+  * sticky：是否设置y修饰符
+  * flags：正则表达式的修饰符
+
+### 重点难点
+  * y修饰符隐含头部匹配标志^
+  * 单单一个y修饰符对match()只能返回第一个匹配，必须与g修饰符联用才能返回所有匹配
+
+## Symbol
+  * 定义：独一无二的值
+  * 声明：const set = Symbol(str)
+  * 入参：字符串(可选)
+  * 方法
+    1. Symbol()：创建以参数作为描述的Symbol值(不登记在全局环境)
+    2. Symbol.for()：创建以参数作为描述的Symbol值，如存在此参数则返回原有的Symbol值(先搜索后创建，登记在全局环境)
+    3. Symbol.keyFor()：返回已登记的Symbol值的描述(只能返回Symbol.for()的key)
+    4. Object.getOwnPropertySymbols()：返回对象中所有用作属性名的Symbol值的数组
+  * 内置
+    1. Symbol.hasInstance：指向一个内部方法，当其他对象使用instanceof运算符判断是否为此对象的实例时会调用此方法
+    2. Symbol.isConcatSpreadable：指向一个布尔值，定义对象用于Array.prototype.concat()时是否可展开
+    3. Symbol.species：指向一个构造函数，当实例对象使用自身构造函数时会调用指定的构造函数
+    4. Symbol.match：指向一个函数，当实例对象被String.prototype.match()调用时会重新定义match()的行为
+    5. Symbol.replace：指向一个函数，当实例对象被String.prototype.replace()调用时会重新定义replace()的行为
+    6. Symbol.search：指向一个函数，当实例对象被String.prototype.search()调用时会重新定义search()的行为
+    7. Symbol.split：指向一个函数，当实例对象被String.prototype.split()调用时会重新定义split()的行为
+    8. Symbol.iterator：指向一个默认遍历器方法，当实例对象执行for-of时会调用指定的默认遍历器
+    9. Symbol.toPrimitive：指向一个函数，当实例对象被转为原始类型的值时会返回此对象对应的原始类型值
+    10. Symbol.toStringTag：指向一个函数，当实例对象被Object.prototype.toString()调用时其返回值会出现在toString()返回的字符串之中表示对象的类型
+    11. Symbol.unscopables：指向一个对象，指定使用with时哪些属性会被with环境排除
+
+### 数据类型
+  * Undefined
+  * Null
+  * String
+  * Number
+  * Boolean
+  * Object(包含Array、Function、Date、RegExp、Error)
+  * Symbol
+
+### 应用场景
+  * 唯一化对象属性名：属性名属于Symbol类型，就都是独一无二的，可保证不会与其他属性名产生冲突
+  * 消除魔术字符串：在代码中多次出现且与代码形成强耦合的某一个具体的字符串或数值
+  * 遍历属性名：无法通过for-in、for-of、Object.keys()、Object.getOwnPropertyNames()、JSON.stringify()返回，只能通过Object.getOwnPropertySymbols返回
+  * 启用模块的Singleton模式：调用一个类在任何时候返回同一个实例(window和global)，使用Symbol.for()来模拟全局的Singleton模式
+
+### 重点难点
+  * Symbol()生成一个原始类型的值不是对象，因此Symbol()前不能使用new命令
+  * Symbol()参数表示对当前Symbol值的描述，相同参数的Symbol()返回值不相等
+  * Symbol值不能与其他类型的值进行运算
+  * Symbol值可通过String()或toString()显式转为字符串
+  * Symbol值作为对象属性名时，此属性是公开属性，但不是私有属性
+  * Symbol值作为对象属性名时，只能用方括号运算符([])读取，不能用点运算符(.)读取
+  * Symbol值作为对象属性名时，不会被常规方法遍历得到，可利用此特性为对象定义非私有但又只用于内部的方法
+
+## Set
+### Set
+  * 定义：类似于数组的数据结构，成员值都是唯一且没有重复的值
+  * 声明：const set = new Set(arr)
+  * 入参：具有Iterator接口的数据结构
+  * 属性
+    1. constructor：构造函数，返回Set
+    1. size：返回实例成员总数
+  * 方法
+    1. add()：添加值，返回实例
+    2. delete()：删除值，返回布尔值
+    3. has()：检查值，返回布尔值
+    4. clear()：清除所有成员
+    5. keys()：返回以属性值为遍历器的对象
+    6. values()：返回以属性值为遍历器的对象
+    7. entries()：返回以属性值和属性值为遍历器的对象
+    8. forEach()：使用回调函数遍历每个成员
+
+### 应用场景
+  * 去重字符串：[...new Set(str)].join("")
+  * 去重数组：[...new Set(arr)]或Array.from(new Set(arr))
+  * 集合数组
+    1. 声明：const a = new Set(arr1)、const b = new Set(arr2)
+    2. 并集：new Set([...a, ...b])
+    3. 交集：new Set([...a].filter(v => b.has(v)))
+    4. 差集：new Set([...a].filter(v => !b.has(v)))
+  * 映射集合
+    1. 声明：let set = new Set(arr)
+    2. 映射：set = new Set([...set].map(v => v * 2))或set = new Set(Array.from(set, v => v * 2))
+
+### 重点难点
+  * 遍历顺序：插入顺序
+  * 没有键只有值，可认为键和值两值相等
+  * 添加多个NaN时，只会存在一个NaN
+  * 添加相同的对象时，会认为是不同的对象
+  * 添加值时不会发生类型转换(5 !== "5")
+  * keys()和values()的行为完全一致，entries()返回的遍历器同时包括键和值且两值相等
+
+### WeakSet
+  * 定义：和Set结构类似，成员值只能是对象
+  * 声明：const set = new WeakSet(arr)
+  * 入参：具有Iterator接口的数据结构
+  * 属性
+    1. constructor：构造函数，返回WeakSet
+  * 方法
+    1. add()：添加值，返回实例
+    2. delete()：删除值，返回布尔值
+    3. has()：检查值，返回布尔值
+
+### 应用场景
+  * 储存DOM节点：DOM节点被移除时自动释放此成员，不用担心这些节点从文档移除时会引发内存泄漏
+  * 临时存放一组对象或存放跟对象绑定的信息：只要这些对象在外部消失，它在WeakSet结构中的引用就会自动消
+
+### 重点难点
+  * 成员都是弱引用，垃圾回收机制不考虑WeakSet结构对此成员的引用
+  * 成员不适合引用，它会随时消失，因此ES6规定WeakSet结构不可遍历
+  * 其他对象不再引用成员时，垃圾回收机制会自动回收此成员所占用的内存，不考虑此成员是否还存在于WeakSet结构中
+
+## Map
+### Map
+  * 定义：类似于对象的数据结构，成员键可以是任何类型的值
+  * 声明：const map = new Map(arr)
+  * 入参：具有Iterator接口且每个成员都是一个双元素数组的数据结构
+  * 属性
+    1. constructor：构造函数，返回Map
+    2. size：返回实例成员总数
+  * 方法
+    1. get()：返回键值对
+    2. set()：添加键值对，返回实例
+    3. delete()：删除键值对，返回布尔值
+    4. has()：检查键值对，返回布尔值
+    5. clear()：清除所有成员
+    6. keys()：返回以键为遍历器的对象
+    7. values()：返回以值为遍历器的对象
+    8. entries()：返回以键和值为遍历器的对象
+    9. forEach()：使用回调函数遍历每个成员
+
+### 重点难点
+  * 遍历顺序：插入顺序
+  * 对同一个键多次赋值，后面的值将覆盖前面的值
+  * 对同一个对象的引用，被视为一个键
+  * 对同样值的两个实例，被视为两个键
+  * 键跟内存地址绑定，只要内存地址不一样就视为两个键
+  * 添加多个以NaN作为键时，只会存在一个以NaN作为键的值
+  * Object结构提供字符串—值的对应，Map结构提供值—值的对应
+
+### WeakMap
+  * 定义：和Map结构类似，成员键只能是对象
+  * 声明：const set = new WeakMap(arr)
+  * 入参：具有Iterator接口且每个成员都是一个双元素数组的数据结构
+  * 属性
+    1. constructor：构造函数，返回WeakMap
+  * 方法
+    1. get()：返回键值对
+    2. set()：添加键值对，返回实例
+    3. delete()：删除键值对，返回布尔值
+    4. has()：检查键值对，返回布尔值
+
+### 应用场景
+  * 储存DOM节点：DOM节点被移除时自动释放此成员键，不用担心这些节点从文档移除时会引发内存泄漏
+  * 部署私有属性：内部属性是实例的弱引用，删除实例时它们也随之消失，不会造成内存泄漏
+
+### 重点难点
+  * 成员键都是弱引用，垃圾回收机制不考虑WeakMap结构对此成员键的引用
+  * 成员键不适合引用，它会随时消失，因此ES6规定WeakMap结构不可遍历
+  * 其他对象不再引用成员键时，垃圾回收机制会自动回收此成员所占用的内存，不考虑此成员是否还存在于WeakMap结构中
+  * 一旦不再需要，成员会自动消失，不用手动删除引用
+  * 弱引用的只是键而不是值，值依然是正常引用
+  * 即使在外部消除了成员键的引用，内部的成员值依然存在
+
+## Proxy
+  * 定义：修改某些操作的默认行为
+  * 声明：const proxy = new Proxy(target, handler)
+  * 入参
+    1. target：拦截的目标对象
+    2. handler：定制拦截行为
+  * 方法
+    1. Proxy.revocable()：返回可取消的Proxy实例(返回{ proxy, revoke }，通过revoke()取消代理)
+  * 拦截方式
+    1. get()：拦截对象属性读取
+    2. set()：拦截对象属性设置，返回布尔值
+    3. has()：拦截对象属性检查k in obj，返回布尔值
+    4. deleteProperty()：拦截对象属性删除delete obj[k]，返回布尔值
+    5. defineProperty()：拦截对象属性定义Object.defineProperty()、Object.defineProperties()，返回布尔值
+    6. ownKeys()：拦截对象属性遍历for-in、Object.keys()、Object.getOwnPropertyNames()、Object.getOwnPropertySymbols()，返回数组
+    7. getOwnPropertyDescriptor()：拦截对象属性描述读取Object.getOwnPropertyDescriptor()，返回对象
+    8. getPrototypeOf()：拦截对象原型读取instanceof、Object.getPrototypeOf()、Object.prototype.__proto__、Object.prototype.isPrototypeOf()、Reflect.getPrototypeOf()，返回对象
+    9. setPrototypeOf()：拦截对象原型设置Object.setPrototypeOf()，返回布尔值
+    10. isExtensible()：拦截对象是否可扩展读取Object.isExtensible()，返回布尔值
+    11. preventExtensions()：拦截对象不可扩展设置Object.preventExtensions()，返回布尔值
+    12. apply()：拦截Proxy实例作为函数调用proxy()、proxy.apply()、proxy.call()
+    13. construct()：拦截Proxy实例作为构造函数调用new proxy()
+
+### 应用场景
+  * Proxy.revocable()：不允许直接访问对象，必须通过代理访问，一旦访问结束就收回代理权不允许再次访问
+  * get()：读取未知属性报错、读取数组负数索引的值、封装链式操作、生成DOM嵌套节点
+  * set()：数据绑定(Vue数据绑定实现原理)、确保属性值设置符合要求、防止内部属性被外部读写
+  * has()：隐藏内部属性不被发现、排除不符合属性条件的对象
+  * deleteProperty()：保护内部属性不被删除
+  * defineProperty()：阻止属性被外部定义
+  * ownKeys()：保护内部属性不被遍历
+
+### 重点难点
+  * 要使Proxy起作用，必须针对实例进行操作，而不是针对目标对象进行操作
+  * 没有设置任何拦截时，等同于直接通向原对象
+  * 属性被定义为不可读写/扩展/配置/枚举时，使用拦截方法会报错
+  * 代理下的目标对象，内部this指向Proxy代理
+
+## Reflect
+  * 定义：保持Object方法的默认行为
+  * 方法
+    1. get()：返回对象属性
+    2. set()：设置对象属性，返回布尔值
+    3. has()：检查对象属性，返回布尔值
+    4. deleteProperty()：删除对象属性，返回布尔值
+    5. defineProperty()：定义对象属性，返回布尔值
+    6. ownKeys()：遍历对象属性，返回数组(Object.getOwnPropertyNames()+Object.getOwnPropertySymbols())
+    7. getOwnPropertyDescriptor()：返回对象属性描述，返回对象
+    8. getPrototypeOf()：返回对象原型，返回对象
+    9. setPrototypeOf()：设置对象原型，返回布尔值
+    10. isExtensible()：返回对象是否可扩展，返回布尔值
+    11. preventExtensions()：设置对象不可扩展，返回布尔值
+    12. apply()：绑定this后执行指定函数
+    13. construct()：调用构造函数创建实例
+
+### 设置目的
+  * 将Object属于语言内部的方法放到Reflect上
+  * 将某些Object方法报错情况改成返回false
+  * 让Object操作变成函数行为
+  * Proxy与Reflect相辅相成
+
+### 废弃方法
+  * Object.defineProperty() => Reflect.defineProperty()
+  * Object.getOwnPropertyDescriptor() => Reflect.getOwnPropertyDescriptor()
+
+### 重点难点
+  * Proxy方法和Reflect方法一一对应
+  * Proxy和Reflect联合使用，前者负责拦截赋值操作，后者负责完成赋值操作
+
+### 数据绑定：观察者模式
+
+````javascript
+const observerQueue = new Set();
+const observe = fn => observerQueue.add(fn);
+const observable = obj => new Proxy(obj, {
+    set(tgt, key, val, receiver) {
+        const result = Reflect.set(tgt, key, val, receiver);
+        observerQueue.forEach(v => v());
+        return result;
+    }
+});
+
+const person = observable({ age: 25, name: "Yajun" });
+const print = () => console.log(`${person.name} is ${person.age} years old`);
+observe(print);
+person.name = "Joway";
+
+````
