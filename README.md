@@ -15,3 +15,5 @@
 6. [CSS技巧](https://github.com/fengyingweb/trample/blob/master/css%E6%8A%80%E5%B7%A7.md)
 
 7. [ES6笔记](https://github.com/fengyingweb/trample/blob/master/es6%E7%89%B9%E6%80%A7.md)
+
+8. [http笔记](https://github.com/fengyingweb/trample/blob/master/http.md)
