@@ -17,3 +17,5 @@
 7. [ES6笔记](https://github.com/fengyingweb/trample/blob/master/es6%E7%89%B9%E6%80%A7.md)
 
 8. [http笔记](https://github.com/fengyingweb/trample/blob/master/http.md)
+
+9. [vue-2笔记](https://github.com/fengyingweb/trample/blob/master/vue-2.md)

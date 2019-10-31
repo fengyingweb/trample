@@ -1,4 +1,4 @@
-# Vue开发技巧
+# Vue 2.x开发技巧
 
 ## 1.require.context()
 
