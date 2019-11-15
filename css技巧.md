@@ -306,3 +306,109 @@ span {
 	}
 
 ````
+
+## 23.【角向渐变】🐲新的渐变：角向渐变。可以用来实现饼图
+
+````html
+  div {
+      width: 200px;
+      height: 200px;
+      border-radius: 100%;
+      background: conic-gradient(red 0 30%, green 30% 60%, blue 60% 100%);
+  }
+````
+
+## 24.【背景重复新值】🐴background-repeat新属性值：round和space。前者表示凑个整，后者表示留点缝
+
+## 25.【object-fit】🍓图片在指定尺寸后，可以设置object-fit为contain或cover保持比例
+
+````html
+  img {
+      width: 300px;
+      height: 100px;
+      object-fit: cover;
+  }
+````
+
+## 26.【fill-available】🍏设置宽度为fill-available，可以使inline-block像block那样填充整个空间
+
+## 27.【fit-content】🍎设置宽度为fit-content，可以使block像inline-block那样实现收缩宽度包裹内容的效果
+
+## 28.【min-content/max-content】🍍可以设置宽度为min-content和max-content，前者让内容尽可能地收缩，后者让内容尽可能地展开
+
+## 29.水波纹效果
+
+````html
+  <style>
+    .water-wave {
+	  position: relative;
+	  margin: 100px auto;
+	  width: 100px;
+	  height: 100px;
+	  border: 1px solid #ccc;
+	  border-radius: 100px;
+	  line-height: 50px;
+	  text-align: center;
+	  overflow: hidden;
+	  animation: water-move linear infinite;
+    }
+			
+	.water-wave:after {
+		content: '水波纹'
+	}
+			
+	.water-wave1 {
+		position: absolute;
+		top: 40%;
+		left: -25%;
+		width: 200%;
+		height: 200%;
+		background: #33cfff;
+		opacity: 0.7;
+		border-radius: 40%;
+		animation: inherit;
+		animation-duration: 5s;
+	}
+			
+	.water-wave2 {
+		position: absolute;
+		top: 45%;
+		left: -35%;
+		width: 200%;
+		height: 200%;
+		background: #0eaffe;
+		opacity: 0.5;
+		border-radius: 35%;
+		animation: inherit;
+		animation-duration: 7s;
+	}
+			
+	.water-wave3 {
+		position: absolute;
+		top: 50%;
+		left: -35%;
+		width: 200%;
+		height: 200%;
+		background: #0f7ae4;
+		opacity: 0.3;
+		border-radius: 35%;
+		animation: inherit;
+		animation-duration: 11s;
+	}
+			
+	@keyframes water-move {
+		0% {
+			transform: rotate(0deg);
+		}
+				
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+  </style>
+  <div class="water-wave">
+	  <div class="water-wave1"></div>
+	  <div class="water-wave2"></div>
+	  <div class="water-wave3"></div>
+  </div>
+````
