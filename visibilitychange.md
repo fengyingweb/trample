@@ -2,7 +2,7 @@
 
 `visibilitychange`事件介绍 简单的说，浏览器标签页被隐藏或显示的时候会触发`visibilitychange`事件
 
-### 改API的属性和事件
+### API的属性和事件
 
 HTML5中专门为`document`添加了相关属性和事件.
 
