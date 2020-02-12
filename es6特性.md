@@ -82,7 +82,7 @@
 
 ## 数值扩展
   * 二进制表示法：0b或0B开头表示二进制(0bXX或0BXX)
-  * 八进制表示法：0o或0O开头表示二进制(0oXX或0OXX)
+  * 八进制表示法：0o或0O开头表示八进制(0oXX或0OXX)
   * Number.EPSILON：数值最小精度
   * Number.MIN_SAFE_INTEGER：最小安全数值(-2^53)
   * Number.MAX_SAFE_INTEGER：最大安全数值(2^53)
