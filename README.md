@@ -19,3 +19,5 @@
 8. [http笔记](https://github.com/fengyingweb/trample/blob/master/http.md)
 
 9. [vue-2笔记](https://github.com/fengyingweb/trample/blob/master/vue-2.md)
+
+10. [节流防抖](https://github.com/fengyingweb/trample/blob/master/debounce.md)
