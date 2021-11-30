@@ -197,8 +197,8 @@ Dialog.install = function (app) {
     const container = document.createElement('div')
     let vm = createVNode(DialogVue, props, null);
     render(vm, container)
-    currentVm = vm.component.ctx
-    document.body.appendChild(currentVm.$el);
+    currentVm = vm.component.proxy // 注意应取proxy属性，不能取ctx属性, 取ctx属性打包后会找不到对应属性
+    document.body.appendChild(container.firstElementChild);
   };
   
   app.config.globalProperties.$dialog = {
