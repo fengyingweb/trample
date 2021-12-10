@@ -25,3 +25,5 @@
 11. [vue3.0插件开发实例](https://github.com/fengyingweb/trample/blob/master/vue3%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B.md)
 
 12. [vite配置demo](https://github.com/fengyingweb/trample/blob/master/vite%E9%85%8D%E7%BD%AEdemo.md)
+
+13.[深拷贝demo](https://github.com/fengyingweb/trample/blob/master/deepClone-demo.md)
