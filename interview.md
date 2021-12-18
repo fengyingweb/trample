@@ -176,6 +176,35 @@ function assignObj(to, from, key) {
 
 ## 5手写实现EventBus
 ````js
+// 简易版
+class EventBus {
+  constructor() {
+    this.eventObj = {}
+  }
+  on(eventName, cb) {
+    if (this.eventObj[eventName]) {
+      this.eventObj[eventName].push(cb)
+    } else  {
+      this.eventObj[eventName] = [cb]
+    }
+  }
+  emit(eventName, ...args) {
+    if (this.eventObj[eventName]) {
+      this.eventObj[eventName].forEach(cb=> {
+        cb(...args)
+      })
+    }
+  }
+  off(eventName) {
+    if (this.eventObj[eventName]) {
+      delete this.eventObj[eventName]
+    }
+  }
+  once(eventName, cb) {
+    this.off(eventName)
+    this.eventObj[eventName] = [cb]
+  }
+}
 ````
 
 ## 6虚拟滚动
@@ -254,6 +283,7 @@ while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
 
 
 ## 8 vue-router原理
+参考[7张图，从零实现一个简易版Vue-Router，太通俗易懂了！](https://juejin.cn/post/7012272146907037732)
 
 ## 9 vuex原理
 
