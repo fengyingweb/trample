@@ -353,3 +353,397 @@ while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
   margin: auto;
 }
 ````
+
+# Promise 篇
+
+## 12实现Promise
+
+````js
+````
+
+## 13 实现Promise.all
+
+````js
+function promiseAll(promises) {
+  return new Promise((resolve, reject)=> {
+    if (!Array.isArray(promises)) {
+      throw new TypeError("promises must be an array")
+    }
+    let result = [];
+    let count = 0;
+    promises.forEach((promise, ind)=> {
+      promise.then(res=> {
+        result[ind] = res;
+        count++;
+        count === promises.length && resolve(result);
+      }, err=> {
+        reject(err)
+      })
+    })
+  })
+}
+````
+
+## 14 实现 promise.finally
+
+````js
+Promise.prototype.finally = function(cb) {
+  return this.then(function(res) {
+    return Promise.resolve(cb()).then(()=> {
+      return res;
+    })
+  }, function(err) {
+    return Promise.resolve(cb()).then(()=> {
+      throw err;
+    })
+  })
+}
+````
+
+## 15 实现promise.allSettled
+
+````js
+function allSettled(promises) {
+  if (promises.length === 0) return Promise.resolve([]);
+  let _promises = promises.map(
+    item=> item instanceof Promise ? item : Promise.resolve(item);
+  );
+  return new Promise(resolve=> {
+    let result = [];
+    let count = 0;
+    _promises.forEach((item, ind)=> {
+      item.then(res=> {
+        result[ind] = {
+          status: 'fulfilled',
+          value: res
+        };
+        count++
+        count === _promises.length && resolve(result)
+      }, (err)=> {
+        result[ind] = {
+          status: 'reject',
+          value: err
+        };
+        count++
+        count === _promise.length && resolve(result)
+      })
+    })
+  })
+}
+````
+
+## 16 实现promise.race
+
+````js
+Promise.race = function (promiseArr) {
+  return new Promise((resolve, reject)=> {
+    promiseArr.forEach(item=> {
+      Promise.resolve(item).then(res=> {
+        resolve(res)
+      }, (err)=> {
+        reject(err)
+      })
+    })
+  })
+}
+````
+
+## 17 实现 promise.any
+
+````js
+Promise.any = function(promiseArr) {
+  return new Promise((resolve, reject)=> {
+    if (promiseArr.length === 0) return;
+    let count = 0;
+    promiseArr.forEach((item, ind)=> {
+      Promise.resolve(item).then(res=> {
+        resolve(res);
+      }, (err)=> {
+        count++
+        if (count === promiseArr.length) {
+          reject(new AggregateError('All promises were rejected'))
+        }
+      })
+    })
+  })
+}
+````
+
+## 18 实现Promise.resolve
+
+````js
+Promise.resolve = function(value) {
+  return new Promise((resolve, reject)=> resolve(value));
+}
+````
+
+## 19 实现Promise.reject
+
+````js
+Promise.reject = function(value) {
+  return new Promise((resolve, reject)=> reject(value))
+}
+````
+
+# 数组篇
+
+## 20 数组去重
+
+### 使用双重 for 和 splice
+
+````js
+function unique(arr) {
+  for (var i=0; i<arr.length; i++) {
+    for(var j=i+1; j<arr.length; j++) {
+      if (arr[i] === arr[j]) {
+        arr.splice(j, 1);
+        j--;
+      }
+    }
+  }
+  return arr
+}
+````
+
+### 使用 indexOf 或 includes 加新数组
+
+````js
+function unique(arr) {
+  let newArr = []
+  for (var i=0; i<arr.length; i++) {
+    if (newArr.indexOf(arr[i]) === -1) {
+      newArr.push(arr[i])
+    }
+  }
+  return newArr;
+}
+
+function unique(arr) {
+  let newArr = []
+  for(var i=0; i<arr.length; i++) {
+    if (!newArr.includes(arr[i])) {
+      newArr.push(arr[i]);
+    }
+  }
+  return newArr;
+}
+````
+
+### sort 排序后，使用快慢指针的思想
+
+````js
+function unique(arr) {
+  arr.sort((a, b)=> a-b)
+  var slow = 1,
+      fast = 1;
+  while (fast < arr.length) {
+    if (arr[fast] !== arr[fast - 1]) {
+      arr[slow++] = arr[falst];
+    }
+    ++fast;
+  }
+  arr.length = slow;
+  return arr;
+}
+````
+
+### Es6的set
+
+````js
+function unique(arr) {
+  let setArr = new Set(arr);
+  return [...setArr];
+}
+````
+
+### Es6的map
+
+````js
+function unique(arr) {
+  let map = new Map();
+  let result = new Array();
+  for (let i=0; i<arr.length; i++) {
+    if (map.has(arr[i])) {
+      map.set(arr[i], true);
+    } else {
+      map.set(arr[i], false);
+      result.push(arr[i]);
+    }
+  }
+  return result;
+}
+````
+
+### 使用filter和indexOf
+
+````js
+function unique(arr) {
+  return arr.filter((item, index, arr)=> {
+    return arr.indexOf(item) === index;
+  })
+}
+````
+
+### reduce 配合 includes
+
+````js
+function unique(arr) {
+  return arr.reduce((arc, cur)=> {
+    if (!arc.includes(cur)) {
+      arc.push(cur);
+    }
+    return arc;
+  }, []);
+}
+````
+
+## 实现forEach
+
+````js
+Array.prototype.myForEach = function(fn) {
+  if (this === null || this === undefined) {
+    throw new TypeError(`Cannot read property 'myForEach' of null`);
+  }
+  if (Object.prototype.toString.call(fn) !== '[object Function]') {
+    throw new TypeError(`${fn} s not a function`)
+  }
+  var _arr = this, thisArg = arguments[1] || window
+  for (var i = 0; i<_arr.length; i++) {
+    fn.call(thisArg, _arr[i], i, _arr);
+  }
+}
+````
+
+## 实现reduce
+
+````js
+Array.prototype.myReduce = function(fn) {
+  let _arr = this, initVal = arguments[1]
+  let i = 0;
+  if (initVal === undefined) {
+    if (_arr.length === 0) {
+      throw new Error('initVal and Array.length>0 need one')
+    }
+    initVal = _arr[i];
+    i++;
+  }
+  for(; i<_arr.length; i++) {
+    initVal = fn(initVal, _arr[i], i, _arr);
+  }
+  return initVal;
+}
+````
+
+## 实现map
+
+````js
+Array.prototype.myMap = function(fn) {
+  let _arr = this, thisArg = arguments[1] || window, result = [];
+  for(let i=0; i<_arr.length; i++) {
+    result.push(fn.call(thisArg, _arr[i], i, _arr));
+  }
+  return result;
+}
+````
+
+## 实现filter
+
+````js
+Array.prototype.myFilter = function(fn) {
+  let _arr = this, thisArg = arguments[1] || window, result = [];
+  for(let i=0; i<_arr.length; i++) {
+    if (fn.call(thisArg, _arr[i], i, _arr)) {
+      result.push(_arr[i]);
+    }
+  }
+  return result;
+}
+````
+
+## 实现every
+
+````js
+Array.prototype.myEvery = function(fn) {
+  var _arr = this, thisArg = arguments[1] || window;
+  var flag = true;
+  for(var i=0; i<_arr.length; i++) {
+    if (!fn.call(thisArg, _arr[i], i, _arr)) {
+      return false;
+    }
+  }
+  return flag;
+}
+````
+
+## 实现some
+
+````js
+Array.prototype.mySome = function(fn) {
+  var _arr = this, thisArg = arguments[1] ?? window;
+  var flag = false;
+  for(var i=0; i<_arr.length; i++) {
+    if (fn.call(thisArg, _arr[i], i, _arr)) {
+      return true;
+    }
+  }
+  return flag;
+}
+````
+
+## 实现 find/findIndex
+
+````js
+Array.prototype.myFind = function(fn) {
+  var _arr = this, thisArg = arguments[1] ?? window;
+  for(var i=0; i<_arr.length; i++) {
+    if (fn.call(thisArg, _arr[i], i, _arr)) {
+      return _arr[i];
+    }
+  }
+  return undefined;
+}
+
+Array.prototype.myFindIndex = function(fn) {
+  var _arr = this, thisArg = arguments[1] ?? window;
+  for(var i=0; i<_arr.length; i++) {
+    if (fn.call(thisArg, _arr[i], i, _arr)) {
+      return i;
+    }
+  }
+  return -1;
+}
+````
+
+## 实现indexOf
+
+````js
+Array.prototype.myIndexOf = function(findVal, begin = 0) {
+  var _arr = this;
+  if (!_arr.length || begin > _arr.length) {
+    return -1;
+  }
+
+  if (!findVal) {
+    return 0;
+  }
+
+  for(var i=0; i<_arr.length; i++) {
+    if (_arr[i] === findVal) {
+      return i;
+    }
+  }
+  return -1;
+}
+````
+
+## 实现new
+
+````js
+function createObj(Con) {
+  var obj = Object.create(null);
+  Object.setPrototypeOf(obj, Con.prototype)
+
+  var ret = Con.applay(obj, [].slice.call(arguments, 1));
+  return typeof ret === 'object' ? ret : obj;
+}
+````
