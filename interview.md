@@ -6,8 +6,8 @@
 let a = {name: '1'};
 let b = a;
 a.x = a = {name: '2'}
-console.log(a.x) // {name: '2'}
-console.log(b.x) // undefined
+console.log(a.x) // undefined
+console.log(b.x) // {name: '2'}
 ````
 
 ````js
