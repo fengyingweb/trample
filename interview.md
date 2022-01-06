@@ -1061,3 +1061,40 @@ console.log(splitMobile(18379802267)) // 183-7980-2267
 console.log(splitMobile2(18379876545)) // 183-7987-6545
 
 ````
+
+## 解析 url 参数
+
+> 根据name获取url上的search参数值
+
+````js
+const getQueryByName = (name) => {
+  const queryNameRegex = new RegExp(`[?&]${name}=([^&]*)(&|$)`)
+  const queryNameMatch = window.location.search.match(queryNameRegex)
+  // 一般都会通过decodeURIComponent解码处理
+  return queryNameMatch ? decodeURIComponent(queryNameMatch[1]) : ''
+}
+
+// https://www.baidu.com/?name=%E5%89%8D%E7%AB%AF%E8%83%96%E5%A4%B4%E9%B1%BC&sex=boy
+
+console.log(getQueryByName('name'), getQueryByName('sex')) // 前端胖头鱼 boy
+````
+
+## 实现获取js数据类型的通用函数
+
+````js
+const getType = (s) => {
+  const r = Object.prototype.toString.call(s)
+
+  return r.replace(/\[object (.*?)\]/, '$1').toLowerCase()
+}
+
+// 测试
+console.log(getType()) // undefined
+console.log(getType(null)) // null
+console.log(getType(1)) // number
+console.log(getType('前端胖头鱼')) // string
+console.log(getType(true)) // boolean
+console.log(getType(Symbol('前端胖头鱼'))) // symbol
+console.log(getType({})) // object
+console.log(getType([])) // array
+````
