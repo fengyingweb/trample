@@ -925,6 +925,8 @@ Array.prototype.myIndexOf = function(findVal, begin = 0) {
 }
 ````
 
+# 函数篇
+
 ## 实现new
 
 ````js
@@ -934,5 +936,57 @@ function createObj(Con) {
 
   var ret = Con.applay(obj, [].slice.call(arguments, 1));
   return typeof ret === 'object' ? ret : obj;
+}
+````
+
+## 实现call
+
+````js
+/**
+ * 
+ * @param {*} ctx 函数执行上下文this
+ * @param  {...any} args 参数列表
+ * @returns 函数执行的结果
+ */
+Function.prototype.myCall = function(ctx, ...args) {
+  // 简单处理未传ctx上下文，或者传的是null和undefined等场景
+  if (!ctx) {
+    ctx = typeof window !== 'undefined' ? window : global;
+  }
+  // 暴力处理 ctx有可能传非对象
+  ctx = Object(ctx);
+  // 用Symbol生成唯一的key
+  const fnName = Symbol();
+  // 这里的this，即要调用的函数
+  ctx[fnName] = this;
+  // 将args展开，并且调用fnName函数，此时fnName函数内部的this也就是ctx了
+  const result = ctx[fnName](...args);
+  // 用完之后，将fnName从上下文ctx中删除
+  delete ctx[fnName];
+  return result;
+}
+````
+
+## 实现apply
+
+````js
+/**
+ * 
+ * @param {*} ctx 函数执行上下文this
+ * @param  {args} args 参数列表
+ * @returns 函数执行的结果
+ */
+Function.prototype.myApply = function(ctx, args) {
+  if (!ctx) {
+    ctx = typeof window !== 'undefined' ? window : global;
+  }
+  ctx = Object(ctx);
+  const fnName = Symbol();
+  ctx[fnName] = this;
+  // 将args展开，并且调用fnName函数，此时fnName函数内部的this也就是ctx了
+  const result = ctx[fnName](...args);
+  // 用完之后，将fnName从上下文ctx中删除
+  delete ctx[fnName];
+  return result;
 }
 ````
