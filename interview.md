@@ -990,3 +990,25 @@ Function.prototype.myApply = function(ctx, args) {
   return result;
 }
 ````
+
+## 实现bind
+
+````js
+/**
+* @param {*} ctx 函数执行上下文this
+* @returns 函数
+*/
+Function.prototype.myBind = function(ctx) {
+  if (!ctx) {
+    ctx = typeof window !== 'undefined' ? window : global;
+  }
+  ctx = Object(ctx);
+  const self = this;
+  const args = [].slice.call(arguments, 1);
+  function fn() {
+    fnArgs = [].slice.call(arguments);
+    return self.apply(ctx, args.concat(fnArgs));
+  }
+  return fn;
+}
+````
