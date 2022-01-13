@@ -172,6 +172,33 @@ function assignObj(to, from, key) {
     }
   }
 }
+// 简易版
+let obj = {
+  name: 'afei',
+  age: 18,
+  likes: ['电影', '美食', '音乐']
+}
+
+function deepClones(newObj = {}, oldObj = {}) {
+	for (let key in oldObj) {
+       let val = oldObj[key]
+	   if (val instanceof Array) {
+		   newObj[key] = []
+		   deepClones(newObj[key], val)
+	   } else if (val instanceof Object) {
+		   newObj[key] = {}
+		   deepClones(newObj[key], val)
+	   } else {
+		   newObj[key] = val
+	   }
+	}
+	return newObj;
+}
+
+let copObj = deepClone({}, obj)
+copObj.age = 19;
+console.log(copObj);
+console.log(obj);
 ````
 
 ## 5手写实现EventBus
