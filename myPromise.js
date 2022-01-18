@@ -61,7 +61,6 @@ class MyPromise {
           try {
             // 获取成功回调函数的执行结果
             const x = onRealFulfilledCallback(value);
-
             // 传入 resolvePromise 集中处理
             resolvePromise(promise, x, resolve, reject);
           } catch (error) {
@@ -124,7 +123,7 @@ function resolvePromise(promise, x, resolve, reject) {
     return reject(new TypeError('Chaining cycle detected for promise #<Promise>'))
   }
 
-  if (typeof x === 'object' && typeof x === 'function') {
+  if (typeof x === 'object' || typeof x === 'function') {
     if (x === null) {
       // x 为 null 直接返回，走后面的逻辑会报错
       return resolve(x)
