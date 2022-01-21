@@ -98,6 +98,22 @@ class MyPromise {
     return promise;
   };
 
+  catch = (onRejectedCall)=> {
+    return this.then(null, onRejectedCall);
+  };
+
+  finally = (callback)=> {
+    return this.then(res=> {
+      return MyPromise.resolve(callback()).then(()=> {
+        return res;
+      })
+    }, err=> {
+      return MyPromise.resolve(callback()).then(()=> {
+        throw err;
+      })
+    })
+  }
+
   // resolve 静态方法
   static resolve(value) {
     if (value instanceof MyPromise) {
