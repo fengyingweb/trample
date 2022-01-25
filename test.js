@@ -224,4 +224,203 @@ function unique8(arr) {
   }, [])
 }
 
-console.log(unique8(arr));
+// console.log(unique8(arr));
+
+const _toString = Object.prototype.toString;
+
+const getType = (val)=> {
+  return _toString.call(val);
+}
+
+// forEach
+Array.prototype.myForEach = function(callback) {
+  if (getType(callback) !== '[object Function]') return new TypeError('callback is not a function');
+  let _arr = this;
+  let thisArg = arguments[1] || global || window;
+  for (let i = 0; i < _arr.length; i++) {
+    callback.call(thisArg, _arr[i], i, _arr);
+  }
+}
+
+// arr.myForEach((item, ind)=> {
+//   console.log(ind, item);
+// })
+
+// reduce
+Array.prototype.myReduce = function(fn) {
+  let _arr = this, initVal = arguments[1];
+  let i = 0;
+  if (!initVal) {
+    if (_arr.length === 0) {
+      return new Error('initVal or arr.length must need one');
+    }
+    initVal = _arr[i];
+    i++;
+  }
+  for (; i < _arr.length; i++) {
+    initVal = fn(initVal, _arr[i], i, _arr);
+  }
+  return initVal;
+}
+
+// console.log(arr.myReduce((init, cur)=> {
+//   return init + cur;
+// }))
+
+// map
+Array.prototype.myMap = function(fn) {
+  let _arr = this, thisArg = arguments[1] || global || window, result = []
+  for (let i = 0; i < _arr.length; i++) {
+    result.push(fn.call(thisArg, _arr[i], i, _arr));
+  }
+  return result;
+}
+
+// filter
+Array.prototype.myFilter = function(fn) {
+  let _arr = this, thisArg = arguments[1] || global || window, result = [];
+  for (let i = 0; i < _arr.length; i++) {
+    if (fn.call(thisArg, _arr[i], i, _arr)) {
+      result.push(_arr[i]);
+    }
+  }
+  return result;
+}
+
+// every
+Array.prototype.myEvery = function(fn) {
+  let _arr = this, thisArg = arguments[1] || global || window;
+  let flag = true;
+  for (let i = 0; i < _arr.length; i++) {
+    if (!fn.call(thisArg, _arr[i], i, _arr)) {
+      return false;
+    }
+  }
+  return flag;
+}
+
+// some
+Array.prototype.mySome = function(fn) {
+  let _arr = this, thisArg = arguments[1] || global || window;
+  let flag = false;
+  for (let i = 0; i < _arr.length; i++) {
+    if (fn.call(thisArg, _arr[i], i, _arr)) {
+      return true;
+    }
+  }
+  return flag;
+}
+
+// find
+Array.prototype.myFind = function(fn) {
+  let _arr = this, thisArg = arguments[1] || global || window;
+  for (let i = 0; i < _arr.length; i++) {
+    if (fn.call(thisArg, _arr[i], i, _arr)) {
+      return _arr[i];
+    }
+  }
+
+  return undefined;
+}
+
+// findIndex
+Array.prototype.myFindIndex = function(fn) {
+  let _arr = this, thisArg = arguments[1] || global || window;
+  for (let i = 0; i < _arr.length; i++) {
+    if (fn.call(thisArg, _arr[i], i, _arr)) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+// indexOf
+Array.prototype.myIndexOf = function(findVal, beginIndex = 0) {
+  let _arr = this;
+  if (!_arr.length || beginIndex >= _arr.length) {
+    return -1;
+  }
+  if (!findVal) {
+    return 0;
+  }
+
+  for (let i = beginIndex; i < _arr.length; i++) {
+    if (_arr[i] === findVal) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+// new
+function createObj(constr) {
+  let obj = Object.create(null);
+  Object.setPrototypeOf(obj, constr.prototype);
+
+  let res = constr.apply(obj, [].slice.call(arguments, 1));
+  return typeof res === 'object' ? res : obj;
+}
+
+// call
+Function.prototype.myCall = function(ctx, ...args) {
+  ctx = ctx || global || window;
+  ctx = Object(ctx);
+  let fnName = Symbol();
+  ctx[fnName] = this;
+  let result = ctx[fnName](...args);
+  delete ctx[fnName];
+  return result;
+}
+
+// apply
+Function.prototype.myApply = function(ctx, args) {
+  ctx = ctx || global || window;
+  ctx = Object(ctx);
+  let fnName = Symbol();
+  ctx[fnName] = this;
+  let result = ctx[fnName](...args);
+  delete ctx[fnName];
+  return result;
+}
+
+// bind
+Function.prototype.myFind = function(ctx) {
+  ctx = ctx || global || window;
+  ctx = Object(ctx);
+  let fnName = Symbol();
+  let args = [].slice.call(arguments, 1);
+  ctx[fnName] = this;
+  return function() {
+    let fnArgs = [].slice.call(arguments);
+    let result = ctx[fnName](...args.concat(fnArgs));
+    delete ctx[fnName];
+    return result;
+  }
+}
+
+// setTimeout 实现 setInterval
+function mySetInterval(fn, time) {
+  let timer = null;
+  const interval = ()=> {
+    timer = setTimeout(()=> {
+      fn();
+      interval();
+    }, time)
+  };
+  interval();
+
+  return ()=> clearTimeout(timer);
+}
+
+// setInterval 实现 setTimeout
+function mySetTimeout (fn, time) {
+  let timer = null;
+  timer = setInterval(()=> {
+    clearInterval(timer);
+    fn();
+  }, time)
+
+  return () => clearInterval(timer);
+}
