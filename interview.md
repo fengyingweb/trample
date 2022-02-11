@@ -1030,11 +1030,14 @@ Function.prototype.myBind = function(ctx) {
     ctx = typeof window !== 'undefined' ? window : global;
   }
   ctx = Object(ctx);
-  const self = this;
+  const fnName = Symbol();
+  ctx[fnName] = this;
   const args = [].slice.call(arguments, 1);
   function fn() {
     fnArgs = [].slice.call(arguments);
-    return self.apply(ctx, args.concat(fnArgs));
+    let result = ctx[fnName](...args.concat(fnArgs))
+    delete ctx[fnName];
+    return result;
   }
   return fn;
 }
