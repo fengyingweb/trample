@@ -754,7 +754,7 @@ function unique(arr) {
       fast = 1;
   while (fast < arr.length) {
     if (arr[fast] !== arr[fast - 1]) {
-      arr[slow++] = arr[falst];
+      arr[slow++] = arr[fast];
     }
     ++fast;
   }
@@ -943,7 +943,7 @@ Array.prototype.myIndexOf = function(findVal, begin = 0) {
     return 0;
   }
 
-  for(var i=0; i<_arr.length; i++) {
+  for(var i=begin; i<_arr.length; i++) {
     if (_arr[i] === findVal) {
       return i;
     }
