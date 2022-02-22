@@ -209,7 +209,7 @@ module.exports = {
                     test: require.resolve('./src/config/common.js'),
                     use: [
                         {
-                            loader: require.resolve('./loaders/envConfigLoader.js')
+                            loader: require.resolve('./loaders/envLoader.js')
                         } // 把BUILD_ENV环境参数放入common.js中
                     ]
                 }
