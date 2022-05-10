@@ -2,15 +2,15 @@
 
 ##1 下面代码输出什么？
 
-```js
+````js
 let a = {name: '1'};
 let b = a;
 a.x = a = {name: '2'}
 console.log(a.x) // undefined
 console.log(b.x) // {name: '2'}
-```
+````
 
-```js
+````js
 var name = 'Hello';
 (function(){
   if (typeof name === 'undefined') {
@@ -23,9 +23,9 @@ var name = 'Hello';
 // 执行上面代码输出
 // goole .com
 // 如果函数自执行里边改成 let name = 'goole' 此时就是输出Hello world
-```
+````
 
-```js
+````js
 Promise.resolve().then(()=> {
   console.log(1)
   setTimeout(()=> {
@@ -68,19 +68,19 @@ console.log(11)
 
 // 这里记住一句话：所有异步任务在执行过程，都是从异步任务队列中将回调函数拿到了任务栈中来执行，此时执行完任务栈里面的代码后，还是会继续按照之前的方式，先从微任务中拿，再从宏任务拿
 
-```
+````
 
-```js
+````js
 const fn = ()=> {
   console.log(this.name)
 }
 fn.call({name: 'afei'})
 // undefined
-```
+````
 
 ## 2防抖
 一定时间内只能执行一次事件，这段时间内多次触发时，清除定时器，重新开始
-```js
+````js
 function debounce(fn, delay) {
   let timer = null;
   return function(...args) {
@@ -91,11 +91,11 @@ function debounce(fn, delay) {
     }, delay)
   }
 }
-```
+````
 
 ## 3节流
 
-```js
+````js
 function trrole(fn, delay) {
   let timer = null;
   return function(...args) {
@@ -119,11 +119,11 @@ function trrole2(fn, delay) {
     fn.applay(ctx, args);
   }
 }
-```
+````
 
 ## 4递归实现深拷贝
 
-```js
+````js
 function deepClone(val) {
   if (Array.isArray(val)) {
     return val.map(item=> deepClone(item))
@@ -172,7 +172,6 @@ function assignObj(to, from, key) {
     }
   }
 }
-
 // 简易版
 let obj = {
   name: 'afei',
@@ -182,16 +181,16 @@ let obj = {
 
 function deepClones(newObj = {}, oldObj = {}) {
 	for (let key in oldObj) {
-    let val = oldObj[key]
-	  if (val instanceof Array) {
-		  newObj[key] = []
-		  deepClones(newObj[key], val)
-	  } else if (val instanceof Object) {
-		  newObj[key] = {}
-		  deepClones(newObj[key], val)
-	  } else {
-		  newObj[key] = val
-	  }
+       let val = oldObj[key]
+	   if (val instanceof Array) {
+		   newObj[key] = []
+		   deepClones(newObj[key], val)
+	   } else if (val instanceof Object) {
+		   newObj[key] = {}
+		   deepClones(newObj[key], val)
+	   } else {
+		   newObj[key] = val
+	   }
 	}
 	return newObj;
 }
@@ -200,10 +199,10 @@ let copObj = deepClone({}, obj)
 copObj.age = 19;
 console.log(copObj);
 console.log(obj);
-```
+````
 
 ## 5手写实现EventBus
-```js
+````js
 // 简易版
 class EventBus {
   constructor() {
@@ -233,7 +232,7 @@ class EventBus {
     this.eventObj[eventName] = [cb]
   }
 }
-```
+````
 
 ## 6虚拟滚动
 
@@ -241,7 +240,7 @@ class EventBus {
 
 ## 7 vue中diff算法
 参考[vue的diff算法](https://juejin.cn/post/6994959998283907102)
-```js
+````js
 // 源码
 // isUndef 判断是否为undefined 
 // oldCh 旧节点列表
@@ -249,11 +248,11 @@ class EventBus {
 // sameVnode 判断是否是相同的节点，判断key值，标签，data等等东西 
 while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
   if (isUndef(oldStartVnode)) {
-    oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
-  } else if (isUndef(oldEndVnode)) {
-    oldEndVnode = oldCh[--oldEndIdx]
+        oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
+      } else if (isUndef(oldEndVnode)) {
+        oldEndVnode = oldCh[--oldEndIdx]
         
-  }
+      }
   // 从这里开始 进行新旧开始结束节点的两两判断
   else if (sameVnode(oldStartVnode, newStartVnode)) {
         patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx)
@@ -307,7 +306,7 @@ while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       removeVnodes(oldCh, oldStartIdx, oldEndIdx)
     }
 }
-```
+````
 
 
 ## 8 vue-router原理
@@ -319,7 +318,7 @@ while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
 
 ## 11 css实现垂直水平居中
 
-```css
+````css
 // 宽高固定
 .parent {
   position: relative;
@@ -380,13 +379,13 @@ while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
 .child {
   margin: auto;
 }
-```
+````
 
 # Promise 篇
 
 ## 12实现Promise
 
-```js
+````js
 // 三种状态
 const PENDING = "pending"
 const FULFILLED = "fulfilled"
@@ -576,37 +575,34 @@ MyPromise.prototype.finally = function (callback) {
     })
   })
 }
-```
+````
 
 ## 13 实现Promise.all
 
-```js
+````js
 function promiseAll(promises) {
   return new Promise((resolve, reject)=> {
     if (!Array.isArray(promises)) {
       throw new TypeError("promises must be an array")
     }
-    const _promises = promises.map(
-      item => item instanceof Promise ? item : Promise.resolve(item);
-    );
     let result = [];
     let count = 0;
-    _promises.forEach((promise, ind)=> {
+    promises.forEach((promise, ind)=> {
       promise.then(res=> {
         result[ind] = res;
         count++;
-        count === _promises.length && resolve(result);
+        count === promises.length && resolve(result);
       }, err=> {
         reject(err)
       })
     })
   })
 }
-```
+````
 
 ## 14 实现 promise.finally
 
-```js
+````js
 Promise.prototype.finally = function(cb) {
   return this.then(function(res) {
     return Promise.resolve(cb()).then(()=> {
@@ -618,11 +614,11 @@ Promise.prototype.finally = function(cb) {
     })
   })
 }
-```
+````
 
 ## 15 实现promise.allSettled
 
-```js
+````js
 function allSettled(promises) {
   if (promises.length === 0) return Promise.resolve([]);
   let _promises = promises.map(
@@ -650,11 +646,11 @@ function allSettled(promises) {
     })
   })
 }
-```
+````
 
 ## 16 实现promise.race
 
-```js
+````js
 Promise.race = function (promiseArr) {
   return new Promise((resolve, reject)=> {
     promiseArr.forEach(item=> {
@@ -666,11 +662,11 @@ Promise.race = function (promiseArr) {
     })
   })
 }
-```
+````
 
 ## 17 实现 promise.any
 
-```js
+````js
 Promise.any = function(promiseArr) {
   return new Promise((resolve, reject)=> {
     if (promiseArr.length === 0) return;
@@ -687,23 +683,23 @@ Promise.any = function(promiseArr) {
     })
   })
 }
-```
+````
 
 ## 18 实现Promise.resolve
 
-```js
+````js
 Promise.resolve = function(value) {
   return new Promise((resolve, reject)=> resolve(value));
 }
-```
+````
 
 ## 19 实现Promise.reject
 
-```js
+````js
 Promise.reject = function(value) {
   return new Promise((resolve, reject)=> reject(value))
 }
-```
+````
 
 # 数组篇
 
@@ -711,7 +707,7 @@ Promise.reject = function(value) {
 
 ### 使用双重 for 和 splice
 
-```js
+````js
 function unique(arr) {
   for (var i=0; i<arr.length; i++) {
     for(var j=i+1; j<arr.length; j++) {
@@ -723,11 +719,11 @@ function unique(arr) {
   }
   return arr
 }
-```
+````
 
 ### 使用 indexOf 或 includes 加新数组
 
-```js
+````js
 function unique(arr) {
   let newArr = []
   for (var i=0; i<arr.length; i++) {
@@ -747,11 +743,11 @@ function unique(arr) {
   }
   return newArr;
 }
-```
+````
 
 ### sort 排序后，使用快慢指针的思想
 
-```js
+````js
 function unique(arr) {
   arr.sort((a, b)=> a-b)
   var slow = 1,
@@ -765,20 +761,20 @@ function unique(arr) {
   arr.length = slow;
   return arr;
 }
-```
+````
 
 ### Es6的set
 
-```js
+````js
 function unique(arr) {
   let setArr = new Set(arr);
   return [...setArr];
 }
-```
+````
 
 ### Es6的map
 
-```js
+````js
 function unique(arr) {
   let map = new Map();
   let result = new Array();
@@ -792,21 +788,21 @@ function unique(arr) {
   }
   return result;
 }
-```
+````
 
 ### 使用filter和indexOf
 
-```js
+````js
 function unique(arr) {
   return arr.filter((item, index, arr)=> {
     return arr.indexOf(item) === index;
   })
 }
-```
+````
 
 ### reduce 配合 includes
 
-```js
+````js
 function unique(arr) {
   return arr.reduce((arc, cur)=> {
     if (!arc.includes(cur)) {
@@ -815,28 +811,28 @@ function unique(arr) {
     return arc;
   }, []);
 }
-```
+````
 
 ## 实现forEach
 
-```js
+````js
 Array.prototype.myForEach = function(fn) {
   if (this === null || this === undefined) {
     throw new TypeError(`Cannot read property 'myForEach' of null`);
   }
   if (Object.prototype.toString.call(fn) !== '[object Function]') {
-    throw new TypeError(`${fn} is not a function`)
+    throw new TypeError(`${fn} s not a function`)
   }
   var _arr = this, thisArg = arguments[1] || window
   for (var i = 0; i<_arr.length; i++) {
     fn.call(thisArg, _arr[i], i, _arr);
   }
 }
-```
+````
 
 ## 实现reduce
 
-```js
+````js
 Array.prototype.myReduce = function(fn) {
   let _arr = this, initVal = arguments[1]
   let i = 0;
@@ -852,11 +848,11 @@ Array.prototype.myReduce = function(fn) {
   }
   return initVal;
 }
-```
+````
 
 ## 实现map
 
-```js
+````js
 Array.prototype.myMap = function(fn) {
   let _arr = this, thisArg = arguments[1] || window, result = [];
   for(let i=0; i<_arr.length; i++) {
@@ -864,11 +860,11 @@ Array.prototype.myMap = function(fn) {
   }
   return result;
 }
-```
+````
 
 ## 实现filter
 
-```js
+````js
 Array.prototype.myFilter = function(fn) {
   let _arr = this, thisArg = arguments[1] || window, result = [];
   for(let i=0; i<_arr.length; i++) {
@@ -878,11 +874,11 @@ Array.prototype.myFilter = function(fn) {
   }
   return result;
 }
-```
+````
 
 ## 实现every
 
-```js
+````js
 Array.prototype.myEvery = function(fn) {
   var _arr = this, thisArg = arguments[1] || window;
   var flag = true;
@@ -893,11 +889,11 @@ Array.prototype.myEvery = function(fn) {
   }
   return flag;
 }
-```
+````
 
 ## 实现some
 
-```js
+````js
 Array.prototype.mySome = function(fn) {
   var _arr = this, thisArg = arguments[1] ?? window;
   var flag = false;
@@ -908,11 +904,11 @@ Array.prototype.mySome = function(fn) {
   }
   return flag;
 }
-```
+````
 
 ## 实现 find/findIndex
 
-```js
+````js
 Array.prototype.myFind = function(fn) {
   var _arr = this, thisArg = arguments[1] ?? window;
   for(var i=0; i<_arr.length; i++) {
@@ -932,11 +928,11 @@ Array.prototype.myFindIndex = function(fn) {
   }
   return -1;
 }
-```
+````
 
 ## 实现indexOf
 
-```js
+````js
 Array.prototype.myIndexOf = function(findVal, begin = 0) {
   var _arr = this;
   if (!_arr.length || begin > _arr.length) {
@@ -954,29 +950,29 @@ Array.prototype.myIndexOf = function(findVal, begin = 0) {
   }
   return -1;
 }
-```
+````
 
 # 函数篇
 
 ## 实现new
 
-```js
+````js
 function createObj(Con) {
   var obj = Object.create(null);
   Object.setPrototypeOf(obj, Con.prototype)
 
-  var ret = Con.apply(obj, [].slice.call(arguments, 1));
+  var ret = Con.applay(obj, [].slice.call(arguments, 1));
   return typeof ret === 'object' ? ret : obj;
 }
-```
+````
 
 ## 实现call
 
-```js
+````js
 /**
  * 
  * @param {*} ctx 函数执行上下文this
- * @param  {...args} args 参数列表
+ * @param  {...any} args 参数列表
  * @returns 函数执行的结果
  */
 Function.prototype.myCall = function(ctx, ...args) {
@@ -996,11 +992,11 @@ Function.prototype.myCall = function(ctx, ...args) {
   delete ctx[fnName];
   return result;
 }
-```
+````
 
 ## 实现apply
 
-```js
+````js
 /**
  * 
  * @param {*} ctx 函数执行上下文this
@@ -1020,11 +1016,11 @@ Function.prototype.myApply = function(ctx, args) {
   delete ctx[fnName];
   return result;
 }
-```
+````
 
 ## 实现bind
 
-```js
+````js
 /**
 * @param {*} ctx 函数执行上下文this
 * @returns 函数
@@ -1034,144 +1030,22 @@ Function.prototype.myBind = function(ctx) {
     ctx = typeof window !== 'undefined' ? window : global;
   }
   ctx = Object(ctx);
-  const self = this;
+  const fnName = Symbol();
+  ctx[fnName] = this;
   const args = [].slice.call(arguments, 1);
   function fn() {
     fnArgs = [].slice.call(arguments);
-    return self.apply(ctx, args.concat(fnArgs));
+    let result = ctx[fnName](...args.concat(fnArgs))
+    delete ctx[fnName];
+    return result;
   }
   return fn;
 }
-```
-
-## 继承
-
-```js
-// es6 继承
-class Anima {
-  constructor(name) {
-    this.name = name;
-  }
-
-  getName() {
-    return this.name;
-  }
-}
-
-class Dogs extends Anima {
-  constructor(name, weight) {
-    super(name)
-    this.weight = weight;
-  }
-}
-
-// ES5继承
-// （1）构造函数继承： 使用父类的构造函数来增强子类实例
-// 特点：可以实现多继承;
-// 缺点：只能继承父类的实例属性和方法，不能继承原型的属性和方法
-// 例子:
-function A(name) {
-  this.name = name;
-}
-A.prototype.getName = function (){
-  return this.name;
-}
-
-function B(name, age) {
-  A.call(this, name);
-  this.age = age;
-}
-const b = new B('阿飞', 18)
-console.log(b.getName());
-
-// (2) 原型链继承
-// 特点：基于原型链，既是父类的实例，也是子类的实例
-// 缺点： 无法实现多继承
-
-// 例子：
-// 采用Object.create
-B.prototype = Object.create(A.prototype);
-// 或者
-// B.prototype = new A()
-B.prototype.constructor = B;
-B.prototype.getAge = function (){
-  return this.age;
-}
-const a = new A('玄武')
-const b = new B('阿飞', 18)
-console.log(a.getName())
-console.log(b.getName())
-console.log(b.getAge())
-console.log(a.getAge())
-
-// (3)原型链寄生继承
-// 例子
-function Fn() {}
-Fn.prototype = A.prototype;
-
-B.prototype = new Fn();
-B.prototype.getAge = function () {
-  return this.age;
-}
-const a = new A('玄武')
-const b = new B('阿飞', 18)
-console.log(a.getName())
-console.log(b.getName())
-console.log(b.getAge())
-console.log(a.getAge())
-
-// (4)组合继承: 1和2的组合
-// 特点：既可以继承父类属性和方法，也可以继承父类原型的属性和方法
-// 缺点： 父类构造函数调用了两次
-
-// 例子：
-function B(name, age) {
-  A.call(this, name);
-  this.age = age;
-}
-// 采用Object.create
-B.prototype = Object.create(A.prototype);
-// 或者
-// B.prototype = new A()
-B.prototype.constructor = B;
-B.prototype.getAge = function (){
-  return this.age;
-}
-const a = new A('玄武')
-const b = new B('阿飞', 18)
-console.log(a.getName())
-console.log(b.getName())
-console.log(b.getAge())
-console.log(a.getAge())
-
-// (5)寄生组合继承：1和3的组合
-// 特点：既可以继承父类属性和方法，也可以继承父类原型的属性和方法，父类构造函数只调用一次
-
-// 例子：
-function B(name, age) {
-  A.call(this, name);
-  this.age = age;
-}
-
-function Fn() {}
-Fn.prototype = A.prototype;
-
-B.prototype = new Fn();
-B.prototype.getAge = function () {
-  return this.age;
-}
-const a = new A('玄武')
-const b = new B('阿飞', 18)
-console.log(a.getName())
-console.log(b.getName())
-console.log(b.getAge())
-console.log(a.getAge())
-```
-
+````
 
 ## setTimeout模拟setInterval
 
-```js
+````js
 const mySetInterval = function(func, time) {
   let timer = null;
   const interval = ()=> {
@@ -1184,11 +1058,11 @@ const mySetInterval = function(func, time) {
   interval();
   return ()=> clearTimeout(timer);
 }
-```
+````
 
 ## setInterval模拟setTimeout
 
-```js
+````js
 const mySetTimeout = function(func, time) {
   let timer = null;
   timer = setInterval(()=> {
@@ -1198,11 +1072,12 @@ const mySetTimeout = function(func, time) {
 
   return ()=> clearInterval(timer);
 }
-```
+````
 
 ## 手机号3-3-4分割
 
-```js
+````js
+
 // 适合纯11位手机
 const splitMobile = (mobile, format = '-') => {
   return String(mobile).replace(/(?=(\d{4})+$)/g, format)
@@ -1214,13 +1089,14 @@ const splitMobile2 = (mobile, format = '-') => {
 
 console.log(splitMobile(18379802267)) // 183-7980-2267
 console.log(splitMobile2(18379876545)) // 183-7987-6545
-```
+
+````
 
 ## 解析 url 参数
 
 > 根据name获取url上的search参数值
 
-```js
+````js
 const getQueryByName = (name) => {
   const queryNameRegex = new RegExp(`[?&]${name}=([^&]*)(&|$)`)
   const queryNameMatch = window.location.search.match(queryNameRegex)
@@ -1231,11 +1107,11 @@ const getQueryByName = (name) => {
 // https://www.baidu.com/?name=%E5%89%8D%E7%AB%AF%E8%83%96%E5%A4%B4%E9%B1%BC&sex=boy
 
 console.log(getQueryByName('name'), getQueryByName('sex')) // 前端胖头鱼 boy
-```
+````
 
 ## 实现获取js数据类型的通用函数
 
-```js
+````js
 const getType = (s) => {
   const r = Object.prototype.toString.call(s)
 
@@ -1251,4 +1127,107 @@ console.log(getType(true)) // boolean
 console.log(getType(Symbol('前端胖头鱼'))) // symbol
 console.log(getType({})) // object
 console.log(getType([])) // array
+````
+
+## Vuex中为什么不建议直接修改state，而是一定要采用mutation去commit提交修改state?
+
+直接修改state，调试工具不能记录状态的变化，容易造成数据的混乱和不可预知的后果；
+使用commit提交修改state，调试工具能够很好的记录状态的变化，保存快照，方便开发调试。
+
+## webpack中配置跨域代理的原理？
+
+使用了webpack-dev-server和http-proxy-middleware插件来实现配置代理跨域
+
+## webpack中loader和plugin的区别？
+
+loader 用于对模块的"源代码"进行转换，在 import 或"加载"模块时预处理文件
+Loader是一个转换器，它可以将某种格式的文件转换成Wwebpack支持打包的模块。
+在Webpack中，一切皆模块，我们常见的Javascript、CSS、Less、Typescript、Jsx、图片等文件都是模块，不同模块的加载是通过模块加载器来统一管理的，当我们需要使用不同的 Loader 来解析不同类型的文件时，我们可以在module.rules字段下配置相关规则。
+
+plugin赋予其各种灵活的功能，例如打包优化、资源管理、环境变量注入等，它们会运行在 webpack 的不同阶段（钩子 / 生命周期），贯穿了webpack整个编译周期，目的在于解决loader 无法实现的其他事
+
+## Vuex原理
+Vuex的原理通俗讲就是：利用了全局混入Mixin，将你所创建的store对象，混入到每一个Vue实例中
+
+简单代码实现
+``` js
+// vuex.js
+let Vue;
+
+// install方法设置，是因为Vue.use(xxx)会执行xxx的install方法
+const install = (v) => { // 参数v负责接收vue实例
+    Vue = v;
+    // 全局混入
+    Vue.mixin({
+        beforeCreate() {
+            if (this.$options && this.$options.store) {
+                // 根页面，直接将身上的store赋值给自己的$store，
+                // 这也解释了为什么使用vuex要先把store放到入口文件main.js里的根Vue实例里
+                this.$store = this.$options.store;
+            } else {
+                // 除了根页面以外，将上级的$store赋值给自己的$store
+                this.$store = this.$parent && this.$parent.$store;
+            }
+        },
+    })
+}
+
+// 创建类Store
+class Store {
+    constructor(options) { // options接收传入的store对象
+        this.vm = new Vue({
+            // 确保state是响应式
+            data: {
+                state: options.state
+            }
+        });
+        // getter
+        let getters = options.getters || {};
+        this.getters = {};
+        console.log(Object.keys(this.getters))
+        Object.keys(getters).forEach(getterName => {
+            Object.defineProperty(this.getters, getterName, {
+                get: () => {
+                    return getters[getterName](this.state);
+                }
+            })
+        })
+        // mutation
+        let mutations = options.mutations || {};
+        this.mutations = {};
+        Object.keys(mutations).forEach(mutationName => {
+            this.mutations[mutationName] = payload => {
+                mutations[mutationName](this.state, payload);
+            }
+        })
+        // action
+        let actions = options.actions || {};
+        this.actions = {};
+        Object.keys(actions).forEach(actionName => {
+            this.actions[actionName] = payload => {
+                actions[actionName](this.state, payload);
+            }
+        })
+    }
+    // 获取state时，直接返回
+    get state() {
+        return this.vm.state;
+    }
+    // commit方法，执行mutations的'name'方法
+    commit(name, payload) {
+        this.mutations[name](payload);
+    }
+    // dispatch方法，执行actions的'name'方法
+    dispatch(name, payload) {
+        this.actions[name](payload);
+    }
+}
+
+// 把install方法和类Store暴露出去
+export default {
+    install,
+    Store
+}
+
 ```
+
