@@ -1129,6 +1129,12 @@ console.log(getType({})) // object
 console.log(getType([])) // array
 ````
 
+## 如何实现Vuex数据持久化
+
+* 法一：全局监听，页面刷新的时候将 store 里 state 的值存到 sessionStorage 中，然后从sessionStorage 中获取，再赋值给 store ，并移除 sessionStorage 中的数据
+
+* 方法二：安装 vuex-persistedstate 插件
+
 ## Vuex中为什么不建议直接修改state，而是一定要采用mutation去commit提交修改state?
 
 直接修改state，调试工具不能记录状态的变化，容易造成数据的混乱和不可预知的后果；
