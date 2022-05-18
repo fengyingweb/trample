@@ -1240,3 +1240,36 @@ export default {
 ## Vue动态插入组件方法
 
 使用插槽slot和内置组件component
+
+## Vue的template中为什么可以省略this
+
+原因是源码中render使用了with(this)
+
+```js
+/**
+ * 从 AST 生成渲染函数
+ * @returns {
+ *   render: `with(this){return _c(tag, data, children)}`,
+ *   staticRenderFns: state.staticRenderFns
+ * } 
+ */
+```
+
+* with语句的作用是将代码的作用域设置在一个特定的对象中，with语句如下：
+
+> with (expression) { statement }
+
+如下面的例子：
+
+```js
+var  qs =  location.search.substring(1);
+var  hostName = location.hostName;
+var  url = location.href;
+
+// 使用with语句后
+with(location) {
+  var  qs =  search.substring(1);
+　var  hostName = hostName;
+  var  url = href;
+}
+```
