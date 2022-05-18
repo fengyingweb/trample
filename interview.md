@@ -1419,7 +1419,7 @@ with(location) {
 }
 ```
 
-## 参考[Vue源码解析] (https://juejin.cn/column/6960553066101735461)
+## 参考[Vue源码解析](https://juejin.cn/column/6960553066101735461)
 
 ## Vue 的初始化过程（new Vue(options)）都做了什么？
 
