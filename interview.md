@@ -1237,3 +1237,6 @@ export default {
 
 ```
 
+## Vue动态插入组件方法
+
+使用插槽slot和内置组件component
