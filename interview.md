@@ -2174,6 +2174,17 @@ new webpack.optimize.CommonsChunkPlugin({
 
 * 优化 SourceMap
 
+> 开发环境推荐： cheap-module-eval-source-map 
+> 生产环境推荐： cheap-module-source-map 
+
+原因如下： 
+
+1. 源代码中的列信息是没有任何作用，因此我们打包后的文件不希望包含列相关信息，只有行信息能建立打包前后的依赖关系。因此不管是开发环境或生产环境，我们都希望添加cheap的基本类型来忽略打包前后的列信息。 
+2. 不管是开发环境还是正式环境，我们都希望能定位到bug的源代码具体的位置，比如说某个vue文件报错了，我们希望能定位到具体的vue文件，因此我们也需要module配置。 
+3. 我们需要生成map文件的形式，因此我们需要增加source-map属性。 
+4. 我们介绍了eval打包代码的时候，知道eval打包后的速度非常快，因为它不生成map文件，但是可以对eval组合使用 eval-source-map使用会将map文件以DataURL的形式存在打包后的js文件中。在正式环境中不要使用 eval-source-map, 因为它会增加文件的大小，但是在开发环境中，可以试用下，因为他们打包的速度很快。
+
+
 * 构建结果输出分析
 
 ### 3、基础的 Web 技术优化
@@ -2187,3 +2198,214 @@ new webpack.optimize.CommonsChunkPlugin({
 > 浏览器从服务器上下载 CSS、js 和图片等文件时都要和服务器连接，而大部分服务器的带宽有限，如果超过限制，网页就半天反应不过来。而 CDN 可以通过不同的域名来加载文件，从而使下载文件的并发连接数大大增加，且CDN 具有更好的可用性，更低的网络延迟和丢包率 。
 
 * 使用 Chrome Performance 查找性能瓶颈
+
+## Vue项目Webpack优化实践
+
+### 1、缩小文件的搜索范围
+
+* 优化Loader配置
+
+> 由于Loader对文件的转换操作很耗时，所以需要让尽可能少的文件被Loader处理。我们可以通过以下3方面优化Loader配置：（1）优化正则匹配（2）通过cacheDirectory选项开启缓存（3）通过include、exclude来减少被处理的文件
+
+```js
+{
+  // 1、如果项目源码中只有js文件，就不要写成/\.jsx?$/，以提升正则表达式的性能
+  test: /\.js$/,
+  // 2、babel-loader支持缓存转换出的结果，通过cacheDirectory选项开启
+  loader: 'babel-loader?cacheDirectory',
+  // 3、只对项目根目录下的src 目录中的文件采用 babel-loader
+  include: [resolve('src')]
+},
+```
+
+* 优化resolve.modules配置
+
+> resolve.modules 用于配置Webpack去哪些目录下寻找第三方模块。resolve.modules的默认值是［node modules］，含义是先去当前目录的/node modules目录下去找我们想找的模块，如果没找到，就去上一级目录../node modules中找，再没有就去../ .. /node modules中找，以此类推，这和Node.js的模块寻找机制很相似。当安装的第三方模块都放在项目根目录的./node modules目录下时，就没有必要按照默认的方式去一层层地寻找，可以指明存放第三方模块的绝对路径，以减少寻找。
+
+```js
+{
+  resolve: {
+    // 使用绝对路径指明第三方模块存放的位置，以减少搜索步骤
+    modules: [path.resolve(__dirname,'node_modules')]
+  },
+}
+```
+
+* 优化resolve.alias配置
+
+* 优化resolve.extensions配置 
+
+> 在导入语句没带文件后缀时，Webpack 会在自动带上后缀后去尝试询问文件是否存在。默认是：extensions :[‘. js ‘,’. json ’] 。也就是说，当遇到require ( '. /data ’）这样的导入语句时，Webpack会先去寻找./data .js 文件，如果该文件不存在，就去寻找./data.json 文件，如果还是找不到就报错。如果这个列表越长，或者正确的后缀越往后，就会造成尝试的次数越多，所以 resolve .extensions 的配置也会影响到构建的性能。 
+
+优化措施： 
+  • 后缀尝试列表要尽可能小，不要将项目中不可能存在的情况写到后缀尝试列表中。
+  • 频率出现最高的文件后缀要优先放在最前面，以做到尽快退出寻找过程。 
+  • 在源码中写导入语句时，要尽可能带上后缀，从而可以避免寻找过程。例如在确定的情况下将 require(’. /data ’)写成require(’. /data.json ’)，可以结合enforceExtension 和 enforceModuleExtension开启使用来强制开发者遵守这条优化
+
+* 优化resolve.noParse配置
+
+> noParse配置项可以让Webpack忽略对部分没采用模块化的文件的递归解析和处理，这 样做的好处是能提高构建性能。原因是一些库如jQuery、ChartJS 庞大又没有采用模块化标准，让Webpack去解析这些文件既耗时又没有意义。noParse是可选的配置项，类型需要是RegExp 、[RegExp]、function中的一种。例如，若想要忽略jQuery 、ChartJS ，则优化配置如下：
+
+```js
+// 使用正则表达式 
+noParse: /jquery|chartjs/ 
+// 使用函数，从 Webpack3.0.0开始支持 
+noParse: (content)=> { 
+// 返回true或false 
+return /jquery|chartjs/.test(content); 
+}
+```
+
+### 2、减少冗余代码
+
+> babel-plugin-transform-runtime 是Babel官方提供的一个插件，作用是减少冗余的代码 。 Babel在将ES6代码转换成ES5代码时，通常需要一些由ES5编写的辅助函数来完成新语法的实现，例如在转换 class extent 语法时会在转换后的 ES5 代码里注入 extent 辅助函数用于实现继承。babel-plugin-transform-runtime会将相关辅助函数进行替换成导入语句，从而减小babel编译出来的代码的文件大小。
+
+### 3、使用HappyPack多进程解析和处理文件
+
+> 由于有大量文件需要解析和处理，所以构建是文件读写和计算密集型的操作，特别是当文件数量变多后，Webpack构建慢的问题会显得更为严重。运行在 Node.之上的Webpack是单线程模型的，也就是说Webpack需要一个一个地处理任务，不能同时处理多个任务。Happy Pack ( https://github.com/amireh/happypack ）就能让Webpack做到这一点，它将任务分解给多个子进程去并发执行，子进程处理完后再将结果发送给主进程。
+
+项目中HappyPack使用配置：
+
+```js
+（1）HappyPack插件安装：
+    $ npm i -D happypack
+（2）webpack.base.conf.js 文件对module.rules进行配置
+    module: {
+     rules: [
+      {
+        test: /\.js$/,
+        // 将对.js 文件的处理转交给 id 为 babel 的HappyPack实例
+          use:['happypack/loader?id=babel'],
+          include: [resolve('src'), resolve('test'),   
+            resolve('node_modules/webpack-dev-server/client')],
+        // 排除第三方插件
+          exclude:path.resolve(__dirname,'node_modules'),
+        },
+        {
+          test: /\.vue$/,
+          use: ['happypack/loader?id=vue'],
+        },
+      ]
+    },
+（3）webpack.prod.conf.js 文件进行配置    const HappyPack = require('happypack');
+    // 构造出共享进程池，在进程池中包含5个子进程
+    const HappyPackThreadPool = HappyPack.ThreadPool({size:5});
+    plugins: [
+       new HappyPack({
+         // 用唯一的标识符id，来代表当前的HappyPack是用来处理一类特定的文件
+         id:'vue',
+         loaders:[
+           {
+             loader:'vue-loader',
+             options: vueLoaderConfig
+           }
+         ],
+         threadPool: HappyPackThreadPool,
+       }),
+
+       new HappyPack({
+         // 用唯一的标识符id，来代表当前的HappyPack是用来处理一类特定的文件
+         id:'babel',
+         // 如何处理.js文件，用法和Loader配置中一样
+         loaders:['babel-loader?cacheDirectory'],
+         threadPool: HappyPackThreadPool,
+       }),
+    ]
+```
+
+### 4、使用ParallelUglifyPlugin多进程压缩代码文件
+
+> 由于压缩JavaScript 代码时，需要先将代码解析成用 Object 抽象表示的 AST 语法树，再去应用各种规则分析和处理AST ，所以导致这个过程的计算量巨大，耗时非常多。当Webpack有多个JavaScript 文件需要输出和压缩时，原本会使用UglifyJS去一个一个压缩再输出，但是ParallelUglifyPlugin会开启多个子进程，将对多个文件的压缩工作分配给多个子进程去完成，每个子进程其实还是通过UglifyJS去压缩代码，但是变成了并行执行。所以 ParallelUglify Plugin能更快地完成对多个文件的压缩工作。
+
+项目中ParallelUglifyPlugin使用配置：
+
+```js
+（1）ParallelUglifyPlugin插件安装：
+     $ npm i -D webpack-parallel-uglify-plugin
+（2）webpack.prod.conf.js 文件进行配置
+    const ParallelUglifyPlugin =require('webpack-parallel-uglify-plugin');
+    plugins: [
+    new ParallelUglifyPlugin({
+      cacheDir: '.cache/',
+      uglifyJs:{
+        compress: {
+          warnings: false
+        },
+        sourceMap: true
+      }
+     }),
+    ]
+```
+
+### 5、使用自动刷新 
+
+> 借助自动化的手段，在监听到本地源码文件发生变化时，自动重新构建出可运行的代码后再控制浏览器刷新。Webpack将这些功能都内置了，并且提供了多种方案供我们选择。
+
+项目中自动刷新的配置：
+
+```js
+devServer: {
+  watchOptions: {
+    // 不监听的文件或文件夹，支持正则匹配
+    ignored: /node_modules/,
+    // 监听到变化后等300ms再去执行动作
+    aggregateTimeout: 300,
+    // 默认每秒询问1000次
+    poll: 1000
+  }
+},
+```
+
+相关优化措施：
+
+（1）配置忽略一些不监听的一些文件，如：node_modules。 
+（2）watchOptions.aggregateTirneout 的值越大性能越好，因为这能降低重新构建的频率。
+（3） watchOptions.poll 的值越小越好，因为这能降低检查的频率。
+
+### 6、开启模块热替换 
+
+项目中模块热替换的配置：
+
+```js
+devServer: {
+  hot: true,
+},
+plugins: [
+  new webpack.HotModuleReplacementPlugin(),
+// 显示被替换模块的名称
+  new webpack.NamedModulesPlugin(), // HMR shows correct file names
+]
+```
+
+### 7、提取公共代码 
+
+如果每个页面的代码都将这些公共的部分包含进去，则会造成以下问题 ： 
+
+ • 相同的资源被重复加载，浪费用户的流量和服务器的成本。
+
+ • 每个页面需要加载的资源太大，导致网页首屏加载缓慢，影响用户体验。 
+
+ 如果将多个页面的公共代码抽离成单独的文件，就能优化以上问题 。Webpack内置了专门用于提取多个Chunk中的公共部分的插件CommonsChunkPlugin。 
+
+ 项目中CommonsChunkPlugin的配置：
+
+ ```js
+ // 所有在 package.json 里面依赖的包，都会被打包进 vendor.js 这个文件中。
+new webpack.optimize.CommonsChunkPlugin({
+  name: 'vendor',
+  minChunks: function(module, count) {
+    return (
+      module.resource &&
+      /\.js$/.test(module.resource) &&
+      module.resource.indexOf(
+        path.join(__dirname, '../node_modules')
+      ) === 0
+    );
+  }
+}),
+// 抽取出代码模块的映射关系
+new webpack.optimize.CommonsChunkPlugin({
+  name: 'manifest',
+  chunks: ['vendor']
+}),
+ ```
