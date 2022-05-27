@@ -1301,7 +1301,7 @@ const install = (v) => { // 参数v负责接收vue实例
                 this.$store = this.$options.store;
             } else {
                 // 除了根页面以外，将上级的$store赋值给自己的$store
-                this.$store = this.$parent && this.$parent.$store;
+                this.$store = this.$options.parent && this.$options.parent.$store;
             }
         },
     })
@@ -2023,12 +2023,14 @@ function updateChildren(ch, oldCh) {
       // 上面几种假设都没命中，则老老实的遍历，找到那个相同元素
     }
   }
-  // 跳出循环，说明有一个节点首先遍历结束了
-  if (newStartIdx < newEndIdx) { // 说明老节点先遍历结束，则将剩余的新节点添加到 DOM 中
-
-  }
-  if (oldStartIdx < oldEndIdx) { // 说明新节点先遍历结束，则将剩余的这些老节点从 DOM 中删掉
-
+  // 走到这里，说明老姐节点或者新节点被遍历完了
+  if (oldStartIdx > oldEndIdx) {
+    // 说明老节点被遍历完了，新节点有剩余，则说明这部分剩余的节点是新增的节点，然后添加这些节点
+    refElm = isUndef(newCh[newEndIdx + 1]) ? null : newCh[newEndIdx + 1].elm
+    addVnodes(parentElm, refElm, newCh, newStartIdx, newEndIdx, insertedVnodeQueue)
+  } else if (newStartIdx > newEndIdx) {
+    // 说明新节点被遍历完了，老节点有剩余，说明这部分的节点被删掉了，则移除这些节点
+    removeVnodes(oldCh, oldStartIdx, oldEndIdx)
   }
 }
 ```
@@ -2064,3 +2066,124 @@ function sameVnode (a, b) {
   )
 }
 ```
+
+## Vue项目中常用的性能优化有哪些?
+
+### 1、代码层面的优化
+
+* v-if 和 v-show 区分使用场景
+
+> v-if 适用于在运行时很少改变条件，不需要频繁切换条件的场景；v-show 则适用于需要非常频繁切换条件的场景。
+
+* computed 和 watch 区分使用场景
+
+> 运用场景：
+
+> 当我们需要进行数值计算，并且依赖于其它数据时，应该使用 computed，因为可以利用 computed 的缓存特性，避免每次获取值时，都要重新计算；
+
+> 当我们需要在数据变化时执行异步或开销较大的操作时，应该使用 watch，使用 watch 选项允许我们执行异步操作 ( 访问一个 API )，限制我们执行该操作的频率，并在我们得到最终结果前，设置中间状态。这些都是计算属性无法做到的。
+
+* v-for 遍历必须为 item 添加 key，且避免同时使用 v-if
+
+> 在列表数据进行遍历渲染时，需要为每一项 item 设置唯一 key 值，方便 Vue.js 内部机制精准找到该条列表数据。当 state 更新时，新的状态值和旧的状态值对比，较快地定位到 diff 。
+
+> v-for 比 v-if 优先级高，如果每一次都需要遍历整个数组，将会影响速度，尤其是当之需要渲染很小一部分的时候，必要情况下应该替换成 computed 属性。
+
+* 长列表性能优化
+
+> Vue 会通过 Object.defineProperty 对数据进行劫持，来实现视图响应数据的变化，然而有些时候我们的组件就是纯粹的数据展示，不会有任何改变，我们就不需要 Vue 来劫持我们的数据，在大量数据展示的情况下，这能够很明显的减少组件初始化的时间，那如何禁止 Vue 劫持我们的数据呢？可以通过 Object.freeze 方法来冻结一个对象，一旦被冻结的对象就再也不能被修改了。
+
+
+* 事件的销毁
+
+> Vue 组件销毁时，会自动清理它与其它实例的连接，解绑它的全部指令及事件监听器，但是仅限于组件本身的事件。 如果在 js 内使用 addEventListene 等方式是不会自动销毁的，我们需要在组件销毁时手动移除这些事件的监听，以免造成内存泄露
+
+* 图片资源懒加载
+
+> 对于图片过多的页面，为了加速页面加载速度，所以很多时候我们需要将页面内未出现在可视区域内的图片先不做加载， 等到滚动到可视区域后再去加载。这样对于页面加载性能上会有很大的提升，也提高了用户体验。我们在项目中使用 Vue 的 vue-lazyload 插件
+
+* 路由懒加载
+
+Vue  是单页面应用，可能会有很多的路由引入 ，这样使用 webpcak 打包后的文件很大，当进入首页时，加载的资源过多，页面会出现白屏的情况，不利于用户体验。如果我们能把不同路由对应的组件分割成不同的代码块，然后当路由被访问的时候才加载对应的组件，这样就更加高效了。这样会大大提高首屏显示的速度，但是可能其他的页面的速度就会降下来。
+
+* 第三方插件的按需引入
+
+> 我们在项目中经常会需要引入第三方插件，如果我们直接引入整个插件，会导致项目的体积太大，我们可以借助 babel-plugin-component ，然后可以只引入需要的组件，以达到减小项目体积的目的。
+
+* 优化无限列表性能
+
+> 如果你的应用存在非常长或者无限滚动的列表，那么需要采用 窗口化 的技术来优化性能，只需要渲染少部分区域的内容，减少重新渲染组件和创建 dom 节点的时间。 你可以参考以下开源项目 vue-virtual-scroll-list 和 vue-virtual-scroller  来优化这种无限列表的场景的。
+
+* 服务端渲染 SSR or 预渲染
+
+### 2、Webpack 层面的优化
+
+* Webpack 对图片进行压缩
+
+> 在 vue 项目中除了可以在 webpack.base.conf.js 中 url-loader 中设置 limit 大小来对图片处理，对小于 limit 的图片转化为 base64 格式，其余的不做操作。所以对有些较大的图片资源，在请求资源的时候，加载会很慢，我们可以用 image-webpack-loader来压缩图片
+
+* 减少 ES6 转为 ES5 的冗余代码
+
+> Babel 插件会在将 ES6 代码转换成 ES5 代码时会注入一些辅助函数
+> 在默认情况下， Babel 会在每个输出文件中内嵌这些依赖的辅助函数代码，如果多个源代码文件都依赖这些辅助函数，那么这些辅助函数的代码将会出现很多次，造成代码冗余。为了不让这些辅助函数的代码重复出现，可以在依赖它们时通过 require('babel-runtime/helpers/createClass') 的方式导入，这样就能做到只让它们出现一次。babel-plugin-transform-runtime 插件就是用来实现这个作用的，将相关辅助函数进行替换成导入语句，从而减小 babel 编译出来的代码的文件大小。
+
+* 提取公共代码
+
+如果项目中没有去将每个页面的第三方库和公共模块提取出来，则项目会存在以下问题：
+
+相同的资源被重复加载，浪费用户的流量和服务器的成本。
+每个页面需要加载的资源太大，导致网页首屏加载缓慢，影响用户体验。
+
+所以我们需要将多个页面的公共代码抽离成单独的文件，来优化以上问题 。Webpack 内置了专门用于提取多个Chunk 中的公共部分的插件 CommonsChunkPlugin，我们在项目中 CommonsChunkPlugin 的配置如下：
+
+```js
+// 所有在 package.json 里面依赖的包，都会被打包进 vendor.js 这个文件中。
+new webpack.optimize.CommonsChunkPlugin({
+  name: 'vendor',
+  minChunks: function(module, count) {
+    return (
+      module.resource &&
+      /\.js$/.test(module.resource) &&
+      module.resource.indexOf(
+        path.join(__dirname, '../node_modules')
+      ) === 0
+    );
+  }
+}),
+// 抽取出代码模块的映射关系
+new webpack.optimize.CommonsChunkPlugin({
+  name: 'manifest',
+  chunks: ['vendor']
+})
+
+```
+
+* 模板预编译
+
+> 当使用 DOM 内模板或 JavaScript 内的字符串模板时，模板会在运行时被编译为渲染函数。通常情况下这个过程已经足够快了，但对性能敏感的应用还是最好避免这种用法。
+
+> 预编译模板最简单的方式就是使用单文件组件——相关的构建设置会自动把预编译处理好，所以构建好的代码已经包含了编译出来的渲染函数而不是原始的模板字符串。
+
+> 如果你使用 webpack，并且喜欢分离 JavaScript 和模板文件，你可以使用 vue-template-loader，它也可以在构建过程中把模板文件转换成为 JavaScript 渲染函数。
+
+* 提取组件的 CSS
+
+> 当使用单文件组件时，组件内的 CSS 会以 style 标签的方式通过 JavaScript 动态注入。这有一些小小的运行时开销，如果你使用服务端渲染，这会导致一段 “无样式内容闪烁 (fouc) ” 。将所有组件的 CSS 提取到同一个文件可以避免这个问题，也会让 CSS 更好地进行压缩和缓存。
+
+> webpack + vue-loader ( vue-cli 的 webpack 模板已经预先配置好)
+
+* 优化 SourceMap
+
+* 构建结果输出分析
+
+### 3、基础的 Web 技术优化
+
+* 开启 gzip 压缩
+
+* 浏览器缓存
+
+* CDN 的使用
+
+> 浏览器从服务器上下载 CSS、js 和图片等文件时都要和服务器连接，而大部分服务器的带宽有限，如果超过限制，网页就半天反应不过来。而 CDN 可以通过不同的域名来加载文件，从而使下载文件的并发连接数大大增加，且CDN 具有更好的可用性，更低的网络延迟和丢包率 。
+
+* 使用 Chrome Performance 查找性能瓶颈
