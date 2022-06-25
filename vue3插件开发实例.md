@@ -4,7 +4,7 @@
 
 ```html
 <template>
-    <div>
+    <div id="dialog">
         <Overlay v-if="overlay" :visible="visible"></Overlay>
         <transition name="zoom">
             <section class="ac-dialog" v-if="visible" @touchmove.prevent>
@@ -26,7 +26,7 @@
 ```
 ```js
 <script>
-import {defineComponent, reactive, toRefs, getCurrentInstance, onMounted} from 'vue'
+import {defineComponent, reactive, toRefs, onMounted, nextTick} from 'vue'
 import Overlay from '../overlay'
 export default defineComponent({
     name: 'Dialog',
@@ -116,8 +116,9 @@ export default defineComponent({
             return dialogState.promise
         }
         onMounted(()=> {
-            const {ctx} = getCurrentInstance()
-            ele = ctx.$el
+            nextTick(()=> {
+              ele = document.querySelector('#dialog')
+            })
         })
         return {
             ...toRefs(dialogState),
@@ -178,7 +179,10 @@ export default defineComponent({
 
 ```js
 
-import { createVNode, render } from 'vue'
+import { 
+  // createVNode,
+  // render,
+  createApp } from 'vue'
 import DialogVue from './index.vue';
 
 // 定义插件对象
@@ -195,9 +199,10 @@ Dialog.install = function (app) {
       props = Object.assign(props, options)
     }
     const container = document.createElement('div')
-    let vm = createVNode(DialogVue, props, null);
-    render(vm, container)
-    currentVm = vm.component.proxy // 注意应取proxy属性，不能取ctx属性, 取ctx属性打包后会找不到对应属性
+    // let dialogVNode = createVNode(DialogVue, props, null);
+    // render(dialogVNode, container)
+    // currentVm = dialogVNode.component.proxy // 注意应取proxy属性，不能取ctx属性, 取ctx属性打包后会找不到对应属性
+    currentVm = createApp(DialogVue, props).mount(container) // 通过createApp和mount获取实例
     document.body.appendChild(container.firstElementChild);
   };
   
