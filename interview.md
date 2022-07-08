@@ -230,7 +230,8 @@ class EventBus {
   }
   once(eventName, cb) {
     this.off(eventName)
-    this.eventObj[eventName] = [cb]
+    // this.eventObj[eventName] = [cb]
+    cb();
   }
 }
 ```
@@ -1039,7 +1040,7 @@ Function.prototype.myBind = function(ctx) {
   ctx[fnName] = this;
   const args = [].slice.call(arguments, 1);
   function fn() {
-    fnArgs = [].slice.call(arguments);
+    const fnArgs = [].slice.call(arguments);
     const result = ctx[fnName](...args.concat(fnArgs))
     delete ctx[fnName]
     return result;
@@ -2409,3 +2410,83 @@ new webpack.optimize.CommonsChunkPlugin({
   chunks: ['vendor']
 }),
  ```
+
+## 如何中断请求
+
+### XMLHttpRequest中断请求
+
+> XMLHttpRequest.abort()方法将终止该请求，当一个请求被终止，它的readyState将被置为XMLHttpRequest.UNSENT(0)，并且请求的status置为0。
+
+### Axios中断请求
+
+> Axios内置CancelToken类，并且new时可以传入回调函数，回调函数接受一个参数cancel函数，CancelToken会把取消回调注入给参数callback，外部使用cancelCallback接收。
+
+CancelToken构造函数生成cancel函数
+
+```js
+async request() {
+  try {
+    if (typeof this.cancelCallback === 'function') {
+        this.cancelCallback('请求中断')
+        this.cancelCallback = null
+    }
+    const ret = await axios.get({
+      data: {},
+      cancelToken: new axios.CancelToken(callback => this.cancelCallback = callback)
+    })
+  } catch (error) {
+    console.log(error)
+  }
+}
+```
+
+CancelToken.source()生成取消令牌token
+
+```js
+let cancelTokenSource = null;
+​
+async request() {
+  if (cancelTokenSource) {
+      cancelTokenSource.cancel('请求中断')
+      cancelTokenSource = null
+  }
+​
+  const cancelToken = axios.CancelToken
+  cancelTokenSource = cancelToken.source()
+​
+  try {
+    const ret = await axios.get({
+      cancelToken: cancelTokenSource.token,
+      data: {}
+    })
+  } catch (error) {
+    console.log(error)
+  }
+}
+```
+
+### Fetch中断请求
+
+1. Fetch是H5新添加的功能，在低版本是不支持的，比如： ie。为了中断Fetch请求跟随出现了AbortController一个控制器对象，允许你根据需要中止一个或者多个web请求。
+
+2. AbortController通过在请求中传入信号源，然后在需要中断请求的时候通过abort方法进行中断请求。
+
+3. AbortController类生成会返回abort中断请求的方法和signal中断请求匹配的信号源。
+
+```js
+// 1. 创建 abortController 对象
+const abortControllerObj = new AbortController()
+​
+// 2. 创建信号源
+const signal = abortControllerObj.signal
+​
+// 3. 使用
+const request = async () => {
+  try {
+    const ret = await fetch('/api/task/list', { signal })
+    return ret
+  } catch (error) {
+    console.log(error)
+  }
+}
+```
