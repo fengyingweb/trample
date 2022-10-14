@@ -11,7 +11,7 @@ https://www.antdv.com/docs/vue/introduce-cn
 基于谷歌的 Material Design，附带 Vue 插件和指令，以及从简单到复杂的高度可定制组件
 https://next-material.balmjs.com/
 ### 4.    Naive UI
-图森Vue3的组件库，文档完整，我项目中经常使用
+图森Vue3的组件库，文档完整
 https://www.naiveui.com/zh-CN/os-theme
 ### 5.    arco.design
 字节跳动企业级产品设计系统，支持React和Vue双版本
