@@ -1206,7 +1206,7 @@ const mySetTimeout = function(func, time) {
 }
 ```
 
-## 手机号3-3-4分割
+## 手机号3-4-4分割
 
 ```js
 // 适合纯11位手机
@@ -1684,7 +1684,7 @@ vm.$on 的原理很简单，就是处理传递的 event 和 callback 两个参�
 
 Hook Event 是 Vue 的自定义事件结合生命周期钩子实现的一种从组件外部为组件注入额外生命周期方法的功能。
 
-## Hook Event 是如果实现的？
+## Hook Event 是如何实现的？
 
 ```html
 <comp @hook:lifecycleMethod="method" />
@@ -1862,32 +1862,30 @@ with (this) {
 
 Vue 的 patch 算法有三个作用：负责首次渲染和后续更新或者销毁组件
 
+* 如果新的VNode不存在，老的VNode存在，直接销毁老的
+
 * 如果老的 VNode 是真实元素，则表示首次渲染，创建整棵 DOM 树，并插入 body，然后移除老的模版节点
 
 * 如果老的 VNode 不是真实元素，并且新的 VNode 也存在，则表示更新阶段，执行 patchVnode
 
- 1. 首先是全量更新所有的属性
+ 1. 如果老的VNode等于新的VNode直接返回
 
- 2. 如果新老 VNode 都有孩子，则递归执行 updateChildren，进行 diff 过程
+ 2. 如果新老节点都是文本节点且文本不相同，则直接替换文本
+
+ 3. 如果新的VNode有子节点，老的VNode没有子节点，则添加新的子节点，
+
+ 4. 如果新的VNode没有子节点，老的VNode有子节点，则删除老的子节点,
+
+ 5. 如果新老 VNode 都有孩子，则递归执行 updateChildren，进行 diff 过程
 
    > 针对前端操作 DOM 节点的特点进行如下优化：
-   2.1 同层比较（降低时间复杂度）深度优先（递归）
+   5.1 diff的过程是个递归的过程，遵循同层比较（降低时间复杂度）深度优先原则
 
-   2.2 而且前端很少有完全打乱节点顺序的情况，所以做了四种假设，假设新老 VNode 的开头结尾存在相同节点，一旦命中假设，就避免了一次循环，降低了 diff 的时间复杂度，提高执行效率。如果不幸没有命中假设，则执行遍历，从老的 VNode 中找到新的 VNode 的开始节点
+   5.2 通过4种假设，进行首位节点的比较，找到相同节点，则执行 patchVnode，然后将老节点移动到正确的位置
 
-   2.3 找到相同节点，则执行 patchVnode，然后将老节点移动到正确的位置
+   5.3 如果老的 VNode 先于新的 VNode 遍历结束，则剩余的新的 VNode 执行新增节点操作
 
-   2.4 如果老的 VNode 先于新的 VNode 遍历结束，则剩余的新的 VNode 执行新增节点操作
-
-   2.5 如果新的 VNode 先于老的 VNode 遍历结束，则剩余的老的 VNode 执行删除操纵，移除这些老节点
-
- 3. 如果新的 VNode 有孩子，老的 VNode 没孩子，则新增这些新孩子节点
-
- 4. 如果老的 VNode 有孩子，新的 VNode 没孩子，则删除这些老孩子节点
-
- 5. 剩下一种就是更新文本节点
-
-* 如果新的 VNode 不存在，老的 VNode 存在，则调用 destroy，销毁老节点
+   5.4 如果新的 VNode 先于老的 VNode 遍历结束，则剩余的老的 VNode 执行删除操纵，移除这些老节点
 
 ## patch
 
@@ -2067,6 +2065,16 @@ function sameVnode (a, b) {
   )
 }
 ```
+
+## Vue是如何进行挂载的？
+
+调用$mount()方法时进行挂载。
+挂载步骤:
+  1. 传入el和当前实例到mountComponent方法中。
+  2. 调用beforeMount钩子函数
+  3. 建立响应式数据依赖更新机制，调动render函数获取虚拟dom
+  4. 初始化渲染，首次调用patch方法创建dom节点完成挂载和渲染
+  5. 挂载渲染完成后调用mounted钩子函数。
 
 ## Vue项目中常用的性能优化有哪些?
 
@@ -2425,17 +2433,17 @@ CancelToken构造函数生成cancel函数
 
 ```js
 async request() {
-  try {
-    if (typeof this.cancelCallback === 'function') {
-        this.cancelCallback('请求中断')
-        this.cancelCallback = null
-    }
-    const ret = await axios.get({
-      data: {},
-      cancelToken: new axios.CancelToken(callback => this.cancelCallback = callback)
-    })
+  try {
+    if (typeof this.cancelCallback === 'function') {
+      this.cancelCallback('请求中断')
+      this.cancelCallback = null
+    }
+    const res = await axios.get({
+      data: {},
+      cancelToken: new axios.CancelToken(callback => this.cancelCallback = callback)
+    })
   } catch (error) {
-    console.log(error)
+    console.log(error)
   }
 }
 ```
@@ -2444,23 +2452,23 @@ CancelToken.source()生成取消令牌token
 
 ```js
 let cancelTokenSource = null;
-​
+
 async request() {
-  if (cancelTokenSource) {
-      cancelTokenSource.cancel('请求中断')
-      cancelTokenSource = null
+  if (cancelTokenSource) {
+    cancelTokenSource.cancel('请求中断')
+    cancelTokenSource = null
   }
-​
-  const cancelToken = axios.CancelToken
-  cancelTokenSource = cancelToken.source()
-​
-  try {
-    const ret = await axios.get({
-      cancelToken: cancelTokenSource.token,
-      data: {}
-    })
+
+  const cancelToken = axios.CancelToken
+  cancelTokenSource = cancelToken.source()
+
+  try {
+    const ret = await axios.get({
+      cancelToken: cancelTokenSource.token,
+      data: {}
+    })
   } catch (error) {
-    console.log(error)
+    console.log(error)
   }
 }
 ```
@@ -2476,17 +2484,17 @@ async request() {
 ```js
 // 1. 创建 abortController 对象
 const abortControllerObj = new AbortController()
-​
+
 // 2. 创建信号源
 const signal = abortControllerObj.signal
-​
+
 // 3. 使用
 const request = async () => {
-  try {
-    const ret = await fetch('/api/task/list', { signal })
-    return ret
+  try {
+    const ret = await fetch('/api/task/list', { signal })
+    return ret
   } catch (error) {
-    console.log(error)
+    console.log(error)
   }
 }
 ```
@@ -2518,5 +2526,20 @@ const request = async () => {
   1.3 CDN内容分发（第三方库，大图片，大文件），
   1.4 服务端渲染，预渲染，
   1.5 懒加载，
-  1.6 缓存（本地缓存localStorage, sessionStorage, 离线缓存manifily，强缓存，协商缓存），
+  1.6 缓存（本地缓存localStorage, sessionStorage, 离线缓存manifest，强缓存，协商缓存），
 2. 减少DOM的操作，避免回流和重绘，
+
+
+## webpack 的构建流程是什么
+
+初始化参数：解析webpack配置参数，合并shell传入和webpack.config.js文件配置的参数,形成最后的配置结果；
+
+开始编译：上一步得到的参数初始化compiler对象，注册所有配置的插件，插件 监听webpack构建生命周期的事件节点，做出相应的反应，执行对象的run方法开始执行编译；
+
+确定入口：从配置的entry入口，开始解析文件构建AST语法树，找出依赖，递归下去；
+
+编译模块：递归中根据文件类型和loader配置，调用所有配置的loader对文件进行转换，再找出该模块依赖的模块，再递归本步骤直到所有入口依赖的文件都经过了本步骤的处理；
+
+完成模块编译并输出：递归完事后，得到每个文件结果，包含每个模块以及他们之间的依赖关系，根据entry或分包配置生成代码块chunk;
+
+输出完成：输出所有的chunk到文件系统;
