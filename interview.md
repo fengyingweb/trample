@@ -110,7 +110,7 @@ function trrole(fn, delay) {
 }
 
 function trrole2(fn, delay) {
-  let last = 0;
+  let last = Date.now();
   return function(...args) {
     let ctx = this;
     let now = Date.now();
